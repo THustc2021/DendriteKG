@@ -1,1 +1,1 @@
-👉 [Click here to view the knowledge graph](https://your-app-name.streamlit.app)
+👉 [Click here to view the knowledge graph](https://dendritekg-bfqnfmiayloekhtvmwxhuc.streamlit.app/)
