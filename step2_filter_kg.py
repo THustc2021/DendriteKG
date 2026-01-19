@@ -1,5 +1,7 @@
+# postprocess_kg.py
 import argparse
 import json
+import os
 import math
 import re
 from collections import Counter, defaultdict
@@ -11,27 +13,49 @@ from sklearn.neighbors import NearestNeighbors
 
 
 # ---------------------------
-# Text normalization (generic, non-domain)
+# Prefix stripping + normalization (generic, non-domain)
 # ---------------------------
-PREFIX_RE = re.compile(r"^[A-Za-z]+_")
-SEP_RE = re.compile(r"[_\-]+")
+TYPE_PREFIX_RE = re.compile(r"^[A-Za-z]+_")   # e.g., Material_xxx -> xxx
+SEP_RE = re.compile(r"[_\-]+")               # underscores/hyphens -> space
 
-def normalize_label(text: str) -> str:
+
+def strip_type_prefix(text: str) -> str:
     """
-    Generic normalization:
-    - remove leading Type_ prefix if present (e.g., Material_xxx -> xxx)
-    - replace underscores/hyphens with spaces
-    - lowercase
-    - strip extra spaces
-    NOTE: no hand-crafted synonym rules.
+    Remove leading 'Type_' prefix if present.
+    Example: 'Material_lithium_metal' -> 'lithium_metal'
     """
     if text is None:
         return ""
     t = str(text).strip()
-    t = PREFIX_RE.sub("", t)            # remove Type_ prefix
-    t = SEP_RE.sub(" ", t)              # underscores -> spaces
+    t = TYPE_PREFIX_RE.sub("", t)
+    return t
+
+
+def label_no_prefix(text: str) -> str:
+    """
+    Human-facing label without prefix.
+    - strip Type_ prefix
+    - convert '_' and '-' to spaces
+    - collapse spaces
+    (No lowercasing here; keep pretty output.)
+    """
+    t = strip_type_prefix(text)
+    t = SEP_RE.sub(" ", t)
     t = re.sub(r"\s+", " ", t).strip()
-    return t.lower()
+    return t
+
+
+def normalize_for_merge(text: str) -> str:
+    """
+    Merge key normalization (used for embeddings):
+    - strip Type_ prefix
+    - '_'/'-' -> space
+    - lowercase
+    - collapse spaces
+    """
+    t = label_no_prefix(text)
+    t = t.lower()
+    return t
 
 
 # ---------------------------
@@ -62,31 +86,29 @@ class UnionFind:
 
 
 # ---------------------------
-# Graph utilities
+# IO utils
 # ---------------------------
 def load_graph(path: str) -> Dict[str, Any]:
     with open(path, "r", encoding="utf-8") as f:
         return json.load(f)
 
+
+def ensure_parent_dir(path: str) -> None:
+    d = os.path.dirname(path)
+    if d:
+        os.makedirs(d, exist_ok=True)
+
+
 def save_json(obj: Any, path: str) -> None:
+    ensure_parent_dir(path)
     with open(path, "w", encoding="utf-8") as f:
         json.dump(obj, f, ensure_ascii=False, indent=2)
+
 
 def ensure_list(x):
     if x is None:
         return []
     return x if isinstance(x, list) else [x]
-
-def edge_key(e: Dict[str, Any]) -> Tuple[str, str, str]:
-    return (str(e["source"]), str(e.get("relation", "related_to")), str(e["target"]))
-
-def build_degree(nodes: List[Dict[str, Any]], edges: List[Dict[str, Any]]) -> Dict[str, int]:
-    deg = {n["id"]: 0 for n in nodes}
-    for e in edges:
-        s = str(e["source"]); t = str(e["target"])
-        if s in deg: deg[s] += 1
-        if t in deg: deg[t] += 1
-    return deg
 
 
 # ---------------------------
@@ -103,20 +125,23 @@ def cluster_nodes_by_semantics(
     Return:
       - id_map: original_node_id -> canonical_node_id
       - report: details of clusters
-    Strategy:
-      - compute embedding for normalized label
-      - for each node, find K nearest neighbors by cosine distance
-      - union pairs whose cosine similarity >= threshold
-      - optionally restrict merges to same node type
+
+    IMPORTANT CHANGE:
+      - embeddings are computed from "no-prefix" labels (and normalized), not raw ids.
     """
-    # Prepare texts
     ids = [str(n["id"]) for n in nodes]
     types = [str(n.get("type", "Unknown")) for n in nodes]
-    labels = [str(n.get("label", n["id"])) for n in nodes]
-    texts = [normalize_label(lbl) for lbl in labels]
 
-    # If some labels become empty, fallback to id
-    texts = [t if t else normalize_label(i) for t, i in zip(texts, ids)]
+    # Prefer node["label"], fallback to id; BUT merge basis should be no-prefix
+    raw_labels = [str(n.get("label", n["id"])) for n in nodes]
+
+    # Use no-prefix label for merge text; if empty fallback to no-prefix id
+    texts = []
+    for lab, nid in zip(raw_labels, ids):
+        base = label_no_prefix(lab)
+        if not base:
+            base = label_no_prefix(nid)
+        texts.append(normalize_for_merge(base))
 
     model = SentenceTransformer(model_name)
     emb = model.encode(texts, normalize_embeddings=True, show_progress_bar=True)
@@ -126,9 +151,6 @@ def cluster_nodes_by_semantics(
     if n == 0:
         return {}, {"clusters": [], "note": "no nodes"}
 
-    # Nearest neighbors in cosine space:
-    # cosine similarity = 1 - cosine distance (with normalized vectors).
-    # sklearn NearestNeighbors metric='cosine' returns cosine distance.
     k = min(knn_k, n)
     nn = NearestNeighbors(n_neighbors=k, metric="cosine")
     nn.fit(emb)
@@ -147,14 +169,13 @@ def cluster_nodes_by_semantics(
                 continue
             uf.union(i, j)
 
-    # Group clusters
     clusters = defaultdict(list)
     for i in range(n):
         clusters[uf.find(i)].append(i)
 
     # Choose canonical id per cluster:
-    # - prefer node with highest (raw) degree proxy = label length or id stability (here: shortest id)
-    #   We'll use: most frequent normalized label, then shortest id for stability.
+    # Keep canonical id stable as an existing node id (we do NOT rewrite ids here).
+    # But the canonical label we output later will be no-prefix.
     id_map: Dict[str, str] = {}
     cluster_report = []
 
@@ -167,18 +188,16 @@ def cluster_nodes_by_semantics(
         member_ids = [ids[i] for i in members]
         member_types = [types[i] for i in members]
         member_texts = [texts[i] for i in members]
-        member_labels = [labels[i] for i in members]
+        member_labels = [raw_labels[i] for i in members]
 
-        # canonical label: most common normalized label
-        text_counter = Counter(member_texts)
-        canonical_text = text_counter.most_common(1)[0][0]
+        # canonical merge-text: most common normalized no-prefix text
+        canonical_text = Counter(member_texts).most_common(1)[0][0]
 
-        # candidates that share canonical_text
         candidates = [i for i in members if texts[i] == canonical_text]
         if not candidates:
             candidates = members
 
-        # canonical id: shortest id among candidates (stable + readable)
+        # canonical id: shortest id among candidates (stable)
         canonical_idx = min(candidates, key=lambda i: (len(ids[i]), ids[i]))
         canonical_id = ids[canonical_idx]
 
@@ -189,7 +208,13 @@ def cluster_nodes_by_semantics(
             "canonical_id": canonical_id,
             "canonical_text": canonical_text,
             "members": [
-                {"id": ids[i], "type": types[i], "label": labels[i], "norm": texts[i]}
+                {
+                    "id": ids[i],
+                    "type": types[i],
+                    "label_raw": raw_labels[i],
+                    "label_no_prefix": label_no_prefix(raw_labels[i]) or label_no_prefix(ids[i]),
+                    "norm_for_merge": texts[i],
+                }
                 for i in members
             ],
             "type_distribution": dict(Counter(member_types)),
@@ -202,7 +227,7 @@ def cluster_nodes_by_semantics(
         "knn_k": knn_k,
         "num_nodes_in": n,
         "num_clusters": len(clusters),
-        "merged_clusters": [c for c in cluster_report],
+        "merged_clusters": cluster_report,
     }
     return id_map, report
 
@@ -217,7 +242,10 @@ def merge_nodes(
     """
     Merge nodes that map to same canonical id.
     Type conflict resolution: majority vote; keep conflict info.
-    Also store 'aliases' (original ids/labels) on the canonical node.
+
+    IMPORTANT CHANGE:
+      - output node["label"] is ALWAYS the no-prefix label.
+      - label voting/selection uses the no-prefix label space.
     """
     buckets = defaultdict(list)
     for n in nodes:
@@ -234,23 +262,35 @@ def merge_nodes(
         type_counts = Counter(types)
         chosen_type = type_counts.most_common(1)[0][0]
 
-        labels = [str(g.get("label", g["id"])) for g in group]
-        norm_labels = [normalize_label(x) for x in labels]
+        # Build no-prefix label candidates
+        raw_labels = [str(g.get("label", g["id"])) for g in group]
+        no_prefix_labels = []
+        for lab, g in zip(raw_labels, group):
+            base = label_no_prefix(lab)
+            if not base:
+                base = label_no_prefix(str(g["id"]))
+            no_prefix_labels.append(base)
 
-        # canonical label: pick the label whose normalized form is most common
-        best_norm = Counter(norm_labels).most_common(1)[0][0]
-        best_candidates = [lab for lab, nlab in zip(labels, norm_labels) if nlab == best_norm]
-        chosen_label = min(best_candidates, key=len) if best_candidates else str(group[0].get("label", cid))
+        # Choose canonical label by most common normalized form, then shortest pretty label
+        norm_no_prefix = [normalize_for_merge(x) for x in no_prefix_labels]
+        best_norm = Counter(norm_no_prefix).most_common(1)[0][0]
+        best_candidates = [lab for lab, nlab in zip(no_prefix_labels, norm_no_prefix) if nlab == best_norm]
+        chosen_label = min(best_candidates, key=len) if best_candidates else (label_no_prefix(cid) or cid)
 
+        # Aliases
         aliases = sorted({str(g["id"]) for g in group})
-        alias_labels = sorted({str(g.get("label", g["id"])) for g in group})
+
+        # Keep both raw alias labels and no-prefix alias labels for traceability
+        alias_labels_raw = sorted({str(g.get("label", g["id"])) for g in group})
+        alias_labels_no_prefix = sorted({label_no_prefix(x) for x in alias_labels_raw if label_no_prefix(x)})
 
         node_out = {
             "id": cid,
             "type": chosen_type,
-            "label": chosen_label,
+            "label": chosen_label,  # <-- no prefix
             "aliases": aliases,
-            "alias_labels": alias_labels,
+            "alias_labels_raw": alias_labels_raw,
+            "alias_labels": alias_labels_no_prefix,
         }
         merged_nodes.append(node_out)
 
@@ -289,7 +329,8 @@ def merge_edges(edges: List[Dict[str, Any]], id_map: Dict[str, str]) -> Tuple[Li
             dst[key].add(sv)
 
     for e in edges:
-        s0 = str(e["source"]); t0 = str(e["target"])
+        s0 = str(e["source"])
+        t0 = str(e["target"])
         s = id_map.get(s0, s0)
         t = id_map.get(t0, t0)
         rel = str(e.get("relation", "related_to"))
@@ -312,7 +353,7 @@ def merge_edges(edges: List[Dict[str, Any]], id_map: Dict[str, str]) -> Tuple[Li
         add_set_field(merged[k], "confidence", e.get("confidence", []))
 
     out = []
-    for k, obj in merged.items():
+    for obj in merged.values():
         obj["papers"] = sorted(list(obj["papers"]))
         obj["evidence"] = sorted(list(obj["evidence"]))
         obj["certainty"] = sorted(list(obj["certainty"]))
@@ -320,10 +361,7 @@ def merge_edges(edges: List[Dict[str, Any]], id_map: Dict[str, str]) -> Tuple[Li
         out.append(obj)
 
     out.sort(key=lambda x: (x["source"], x["relation"], x["target"]))
-    report = {
-        "num_edges_in": len(edges),
-        "num_edges_out": len(out),
-    }
+    report = {"num_edges_in": len(edges), "num_edges_out": len(out)}
     return out, report
 
 
@@ -333,9 +371,12 @@ def merge_edges(edges: List[Dict[str, Any]], id_map: Dict[str, str]) -> Tuple[Li
 def filter_isolated_nodes(nodes: List[Dict[str, Any]], edges: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
     deg = {n["id"]: 0 for n in nodes}
     for e in edges:
-        s = str(e["source"]); t = str(e["target"])
-        if s in deg: deg[s] += 1
-        if t in deg: deg[t] += 1
+        s = str(e["source"])
+        t = str(e["target"])
+        if s in deg:
+            deg[s] += 1
+        if t in deg:
+            deg[t] += 1
 
     kept = [n for n in nodes if deg.get(n["id"], 0) > 0]
     removed = [n for n in nodes if deg.get(n["id"], 0) == 0]
@@ -354,9 +395,9 @@ def filter_isolated_nodes(nodes: List[Dict[str, Any]], edges: List[Dict[str, Any
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--in_graph", required=True, help="Input graph JSON with {nodes, edges}")
-    ap.add_argument("--out_graph", default="kg_postprocessed.json", help="Output postprocessed graph JSON")
-    ap.add_argument("--out_map", default="kg_id_map.json", help="Output node id mapping (old->new)")
-    ap.add_argument("--out_report", default="kg_postprocess_report.json", help="Output report JSON")
+    ap.add_argument("--out_graph", default="kg_out/kg_postprocessed.json", help="Output postprocessed graph JSON")
+    ap.add_argument("--out_map", default="kg_operation_reports/kg_id_map.json", help="Output node id mapping (old->new)")
+    ap.add_argument("--out_report", default="kg_operation_reports/kg_postprocess_report.json", help="Output report JSON")
 
     ap.add_argument("--model", default="sentence-transformers/all-MiniLM-L6-v2", help="SentenceTransformer model")
     ap.add_argument("--threshold", type=float, default=0.90, help="Cosine similarity threshold for merging")
@@ -369,7 +410,7 @@ def main():
     nodes = graph.get("nodes", [])
     edges = graph.get("edges", [])
 
-    # 1) synonym/near-duplicate merge mapping
+    # 1) synonym/near-duplicate merge mapping (based on no-prefix labels)
     id_map, synonym_report = cluster_nodes_by_semantics(
         nodes=nodes,
         model_name=args.model,
@@ -378,7 +419,7 @@ def main():
         same_type_only=args.same_type_only,
     )
 
-    # 2) merge nodes + resolve type conflicts
+    # 2) merge nodes + resolve type conflicts (output label is no-prefix)
     merged_nodes, type_report = merge_nodes(nodes, id_map)
 
     # 3) remap + merge edges (union evidence/papers/etc)
@@ -387,7 +428,7 @@ def main():
     # 4) remove isolated nodes
     final_nodes, iso_report = filter_isolated_nodes(merged_nodes, merged_edges)
 
-    # Also filter edges that reference removed nodes (just in case)
+    # Safety: filter edges referencing removed nodes
     keep_ids = {n["id"] for n in final_nodes}
     final_edges = [e for e in merged_edges if e["source"] in keep_ids and e["target"] in keep_ids]
 
@@ -403,8 +444,9 @@ def main():
         "isolation_filter": iso_report,
         "final": {"nodes": len(final_nodes), "edges": len(final_edges)},
         "notes": [
-            "Synonym merging uses embedding similarity; adjust --threshold to control aggressiveness.",
-            "Consider enabling --same_type_only first to reduce false merges.",
+            "Merging basis uses NO-PREFIX labels (strip leading Type_ then normalize).",
+            "Output node.label is also NO-PREFIX (human-facing).",
+            "Adjust --threshold to control aggressiveness; use --same_type_only first to reduce false merges.",
         ],
     }
     save_json(report, args.out_report)
