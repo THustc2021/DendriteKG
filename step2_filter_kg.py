@@ -400,7 +400,7 @@ def main():
     ap.add_argument("--out_report", default="data/step3_kg_operation_reports/kg_postprocess_report.json", help="Output report JSON")
 
     ap.add_argument("--model", default="sentence-transformers/all-MiniLM-L6-v2", help="SentenceTransformer model")
-    ap.add_argument("--threshold", type=float, default=0.90, help="Cosine similarity threshold for merging")
+    ap.add_argument("--threshold", type=float, default=0.8, help="Cosine similarity threshold for merging")
     ap.add_argument("--knn_k", type=int, default=25, help="KNN neighborhood size for candidate merges")
     ap.add_argument("--same_type_only", action="store_true", help="Only merge nodes with the same type")
 

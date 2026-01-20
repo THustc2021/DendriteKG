@@ -15,20 +15,6 @@
       ]
     },
     {
-      "id": "Condition_applied_current_density",
-      "type": "Condition",
-      "label": "applied current density",
-      "aliases": [
-        "Condition_applied_current_density"
-      ],
-      "alias_labels_raw": [
-        "Condition_applied_current_density"
-      ],
-      "alias_labels": [
-        "applied current density"
-      ]
-    },
-    {
       "id": "Condition_ccd_3.5_ma_cm2",
       "type": "Condition",
       "label": "ccd 3.5 ma cm2",
@@ -54,20 +40,6 @@
       ],
       "alias_labels": [
         "constant current"
-      ]
-    },
-    {
-      "id": "Condition_constant_current_density",
-      "type": "Condition",
-      "label": "constant current density",
-      "aliases": [
-        "Condition_constant_current_density"
-      ],
-      "alias_labels_raw": [
-        "Condition_constant_current_density"
-      ],
-      "alias_labels": [
-        "constant current density"
       ]
     },
     {
@@ -110,20 +82,6 @@
       ],
       "alias_labels": [
         "fixed applied electro potential"
-      ]
-    },
-    {
-      "id": "Condition_high_current_density",
-      "type": "Condition",
-      "label": "high current density",
-      "aliases": [
-        "Condition_high_current_density"
-      ],
-      "alias_labels_raw": [
-        "Condition_high_current_density"
-      ],
-      "alias_labels": [
-        "high current density"
       ]
     },
     {
@@ -224,6 +182,44 @@
       ],
       "alias_labels": [
         "li mg alloy"
+      ]
+    },
+    {
+      "id": "Material_lithium",
+      "type": "Material",
+      "label": "lithium",
+      "aliases": [
+        "Interface_li_electrolyte",
+        "Interface_lithium_electrolyte",
+        "Material_li_metal",
+        "Material_lithium",
+        "Material_lithium_metal",
+        "Material_pure_solid_lithium_metal",
+        "Quantity_li_concentration",
+        "Quantity_lithium_concentration",
+        "Quantity_lithium_ion_concentration"
+      ],
+      "alias_labels_raw": [
+        "Interface_li_electrolyte",
+        "Interface_lithium_electrolyte",
+        "Material_li_metal",
+        "Material_lithium",
+        "Material_lithium_metal",
+        "Material_pure_solid_lithium_metal",
+        "Quantity_li_concentration",
+        "Quantity_lithium_concentration",
+        "Quantity_lithium_ion_concentration"
+      ],
+      "alias_labels": [
+        "li concentration",
+        "li electrolyte",
+        "li metal",
+        "lithium",
+        "lithium concentration",
+        "lithium electrolyte",
+        "lithium ion concentration",
+        "lithium metal",
+        "pure solid lithium metal"
       ]
     },
     {
@@ -363,13 +359,16 @@
       "type": "Mechanism",
       "label": "charge voltage",
       "aliases": [
-        "Mechanism_charge_voltage"
+        "Mechanism_charge_voltage",
+        "PhaseFieldIngredient_charge_voltage_effect"
       ],
       "alias_labels_raw": [
-        "Mechanism_charge_voltage"
+        "Mechanism_charge_voltage",
+        "PhaseFieldIngredient_charge_voltage_effect"
       ],
       "alias_labels": [
-        "charge voltage"
+        "charge voltage",
+        "charge voltage effect"
       ]
     },
     {
@@ -386,36 +385,6 @@
       ],
       "alias_labels": [
         "composite sei formation"
-      ]
-    },
-    {
-      "id": "Mechanism_current_density_distribution",
-      "type": "PhaseFieldIngredient",
-      "label": "current density distribution",
-      "aliases": [
-        "Mechanism_current_density_distribution",
-        "PhaseFieldIngredient_current_density_distribution"
-      ],
-      "alias_labels_raw": [
-        "Mechanism_current_density_distribution",
-        "PhaseFieldIngredient_current_density_distribution"
-      ],
-      "alias_labels": [
-        "current density distribution"
-      ]
-    },
-    {
-      "id": "Mechanism_current_density_effect",
-      "type": "Mechanism",
-      "label": "current density effect",
-      "aliases": [
-        "Mechanism_current_density_effect"
-      ],
-      "alias_labels_raw": [
-        "Mechanism_current_density_effect"
-      ],
-      "alias_labels": [
-        "current density effect"
       ]
     },
     {
@@ -651,13 +620,16 @@
       "type": "Mechanism",
       "label": "lithium deposition morphology",
       "aliases": [
-        "Mechanism_lithium_deposition_morphology"
+        "Mechanism_lithium_deposition_morphology",
+        "Quantity_lithium_morphology"
       ],
       "alias_labels_raw": [
-        "Mechanism_lithium_deposition_morphology"
+        "Mechanism_lithium_deposition_morphology",
+        "Quantity_lithium_morphology"
       ],
       "alias_labels": [
-        "lithium deposition morphology"
+        "lithium deposition morphology",
+        "lithium morphology"
       ]
     },
     {
@@ -781,13 +753,16 @@
       "type": "Mechanism",
       "label": "sei fracture",
       "aliases": [
-        "Mechanism_sei_fracture"
+        "Mechanism_sei_fracture",
+        "PhaseFieldIngredient_sei_fracture_mechanism"
       ],
       "alias_labels_raw": [
-        "Mechanism_sei_fracture"
+        "Mechanism_sei_fracture",
+        "PhaseFieldIngredient_sei_fracture_mechanism"
       ],
       "alias_labels": [
-        "sei fracture"
+        "sei fracture",
+        "sei fracture mechanism"
       ]
     },
     {
@@ -842,13 +817,16 @@
       "type": "Mechanism",
       "label": "space charge model",
       "aliases": [
-        "Mechanism_space_charge_model"
+        "Mechanism_space_charge_model",
+        "Relationship_space_charge_model_equation"
       ],
       "alias_labels_raw": [
-        "Mechanism_space_charge_model"
+        "Mechanism_space_charge_model",
+        "Relationship_space_charge_model_equation"
       ],
       "alias_labels": [
-        "space charge model"
+        "space charge model",
+        "space charge model equation"
       ]
     },
     {
@@ -857,27 +835,16 @@
       "label": "stress",
       "aliases": [
         "Mechanism_stress",
+        "Mechanism_stress_accumulation",
         "PhaseFieldIngredient_stress"
       ],
       "alias_labels_raw": [
         "Mechanism_stress",
+        "Mechanism_stress_accumulation",
         "PhaseFieldIngredient_stress"
       ],
       "alias_labels": [
-        "stress"
-      ]
-    },
-    {
-      "id": "Mechanism_stress_accumulation",
-      "type": "Mechanism",
-      "label": "stress accumulation",
-      "aliases": [
-        "Mechanism_stress_accumulation"
-      ],
-      "alias_labels_raw": [
-        "Mechanism_stress_accumulation"
-      ],
-      "alias_labels": [
+        "stress",
         "stress accumulation"
       ]
     },
@@ -893,20 +860,6 @@
       ],
       "alias_labels": [
         "stress inelastic deformation"
-      ]
-    },
-    {
-      "id": "Mechanism_surface_energy_characterization",
-      "type": "Mechanism",
-      "label": "surface energy characterization",
-      "aliases": [
-        "Mechanism_surface_energy_characterization"
-      ],
-      "alias_labels_raw": [
-        "Mechanism_surface_energy_characterization"
-      ],
-      "alias_labels": [
-        "surface energy characterization"
       ]
     },
     {
@@ -1040,26 +993,15 @@
       "type": "ModelComponent",
       "label": "boundary conditions",
       "aliases": [
-        "ModelComponent_boundary_conditions"
-      ],
-      "alias_labels_raw": [
-        "ModelComponent_boundary_conditions"
-      ],
-      "alias_labels": [
-        "boundary conditions"
-      ]
-    },
-    {
-      "id": "ModelComponent_boundary_initial_conditions",
-      "type": "ModelComponent",
-      "label": "boundary initial conditions",
-      "aliases": [
+        "ModelComponent_boundary_conditions",
         "ModelComponent_boundary_initial_conditions"
       ],
       "alias_labels_raw": [
+        "ModelComponent_boundary_conditions",
         "ModelComponent_boundary_initial_conditions"
       ],
       "alias_labels": [
+        "boundary conditions",
         "boundary initial conditions"
       ]
     },
@@ -1078,35 +1020,24 @@
       ]
     },
     {
-      "id": "ModelComponent_evolution_equation_type",
-      "type": "ModelComponent",
-      "label": "evolution equation type",
-      "aliases": [
-        "ModelComponent_evolution_equation_type"
-      ],
-      "alias_labels_raw": [
-        "ModelComponent_evolution_equation_type"
-      ],
-      "alias_labels": [
-        "evolution equation type"
-      ]
-    },
-    {
       "id": "ModelComponent_evolution_equations",
       "type": "ModelComponent",
       "label": "evolution equations",
       "aliases": [
         "ModelComponent_evolution_equation",
+        "ModelComponent_evolution_equation_type",
         "ModelComponent_evolution_equations",
         "PhaseFieldIngredient_evolution_equations"
       ],
       "alias_labels_raw": [
         "ModelComponent_evolution_equation",
+        "ModelComponent_evolution_equation_type",
         "ModelComponent_evolution_equations",
         "PhaseFieldIngredient_evolution_equations"
       ],
       "alias_labels": [
         "evolution equation",
+        "evolution equation type",
         "evolution equations"
       ]
     },
@@ -1131,29 +1062,18 @@
       "aliases": [
         "ModelComponent_free_energy_functional",
         "ModelComponent_free_energy_functional_terms",
+        "ModelComponent_free_energy_terms",
         "PhaseFieldIngredient_free_energy_functional_terms"
       ],
       "alias_labels_raw": [
         "ModelComponent_free_energy_functional",
         "ModelComponent_free_energy_functional_terms",
+        "ModelComponent_free_energy_terms",
         "PhaseFieldIngredient_free_energy_functional_terms"
       ],
       "alias_labels": [
         "free energy functional",
-        "free energy functional terms"
-      ]
-    },
-    {
-      "id": "ModelComponent_free_energy_terms",
-      "type": "ModelComponent",
-      "label": "free energy terms",
-      "aliases": [
-        "ModelComponent_free_energy_terms"
-      ],
-      "alias_labels_raw": [
-        "ModelComponent_free_energy_terms"
-      ],
-      "alias_labels": [
+        "free energy functional terms",
         "free energy terms"
       ]
     },
@@ -1186,20 +1106,6 @@
       ]
     },
     {
-      "id": "ModelComponent_order_parameter",
-      "type": "ModelComponent",
-      "label": "order parameter",
-      "aliases": [
-        "ModelComponent_order_parameter"
-      ],
-      "alias_labels_raw": [
-        "ModelComponent_order_parameter"
-      ],
-      "alias_labels": [
-        "order parameter"
-      ]
-    },
-    {
       "id": "ModelComponent_order_parameter_psi",
       "type": "ModelComponent",
       "label": "order parameter psi",
@@ -1211,20 +1117,6 @@
       ],
       "alias_labels": [
         "order parameter psi"
-      ]
-    },
-    {
-      "id": "ModelComponent_phase_field_variable",
-      "type": "ModelComponent",
-      "label": "phase field variable",
-      "aliases": [
-        "ModelComponent_phase_field_variable"
-      ],
-      "alias_labels_raw": [
-        "ModelComponent_phase_field_variable"
-      ],
-      "alias_labels": [
-        "phase field variable"
       ]
     },
     {
@@ -1262,27 +1154,19 @@
       "type": "Model",
       "label": "phase field",
       "aliases": [
-        "Model_phase_field"
-      ],
-      "alias_labels_raw": [
-        "Model_phase_field"
-      ],
-      "alias_labels": [
-        "phase field"
-      ]
-    },
-    {
-      "id": "Model_phase_field_model",
-      "type": "Model",
-      "label": "phase field model",
-      "aliases": [
+        "ModelComponent_phase_field_variable",
+        "Model_phase_field",
         "Model_phase_field_model"
       ],
       "alias_labels_raw": [
+        "ModelComponent_phase_field_variable",
+        "Model_phase_field",
         "Model_phase_field_model"
       ],
       "alias_labels": [
-        "phase field model"
+        "phase field",
+        "phase field model",
+        "phase field variable"
       ]
     },
     {
@@ -1339,20 +1223,6 @@
       ],
       "alias_labels": [
         "anisotropy surface energy"
-      ]
-    },
-    {
-      "id": "PhaseFieldIngredient_charge_voltage_effect",
-      "type": "PhaseFieldIngredient",
-      "label": "charge voltage effect",
-      "aliases": [
-        "PhaseFieldIngredient_charge_voltage_effect"
-      ],
-      "alias_labels_raw": [
-        "PhaseFieldIngredient_charge_voltage_effect"
-      ],
-      "alias_labels": [
-        "charge voltage effect"
       ]
     },
     {
@@ -1454,20 +1324,6 @@
       ]
     },
     {
-      "id": "PhaseFieldIngredient_sei_fracture_mechanism",
-      "type": "PhaseFieldIngredient",
-      "label": "sei fracture mechanism",
-      "aliases": [
-        "PhaseFieldIngredient_sei_fracture_mechanism"
-      ],
-      "alias_labels_raw": [
-        "PhaseFieldIngredient_sei_fracture_mechanism"
-      ],
-      "alias_labels": [
-        "sei fracture mechanism"
-      ]
-    },
-    {
       "id": "PhaseFieldIngredient_stress_induced_splitting_mechanism",
       "type": "PhaseFieldIngredient",
       "label": "stress induced splitting mechanism",
@@ -1486,27 +1342,16 @@
       "type": "PhaseFieldIngredient",
       "label": "surface anisotropy term",
       "aliases": [
-        "PhaseFieldIngredient_surface_anisotropy_term"
+        "PhaseFieldIngredient_surface_anisotropy_term",
+        "Relationship_surface_anisotropy_representation"
       ],
       "alias_labels_raw": [
-        "PhaseFieldIngredient_surface_anisotropy_term"
+        "PhaseFieldIngredient_surface_anisotropy_term",
+        "Relationship_surface_anisotropy_representation"
       ],
       "alias_labels": [
+        "surface anisotropy representation",
         "surface anisotropy term"
-      ]
-    },
-    {
-      "id": "PhaseFieldIngredient_temperature_dependent_diffusion_coefficient",
-      "type": "PhaseFieldIngredient",
-      "label": "temperature dependent diffusion coefficient",
-      "aliases": [
-        "PhaseFieldIngredient_temperature_dependent_diffusion_coefficient"
-      ],
-      "alias_labels_raw": [
-        "PhaseFieldIngredient_temperature_dependent_diffusion_coefficient"
-      ],
-      "alias_labels": [
-        "temperature dependent diffusion coefficient"
       ]
     },
     {
@@ -1538,34 +1383,6 @@
       ]
     },
     {
-      "id": "Phenomenon_dendrite_growth_dissolution",
-      "type": "Phenomenon",
-      "label": "dendrite growth dissolution",
-      "aliases": [
-        "Phenomenon_dendrite_growth_dissolution"
-      ],
-      "alias_labels_raw": [
-        "Phenomenon_dendrite_growth_dissolution"
-      ],
-      "alias_labels": [
-        "dendrite growth dissolution"
-      ]
-    },
-    {
-      "id": "Phenomenon_dendrite_initiation_growth_velocity",
-      "type": "Phenomenon",
-      "label": "dendrite initiation growth velocity",
-      "aliases": [
-        "Phenomenon_dendrite_initiation_growth_velocity"
-      ],
-      "alias_labels_raw": [
-        "Phenomenon_dendrite_initiation_growth_velocity"
-      ],
-      "alias_labels": [
-        "dendrite initiation growth velocity"
-      ]
-    },
-    {
       "id": "Phenomenon_dendrite_nucleation",
       "type": "Phenomenon",
       "label": "dendrite nucleation",
@@ -1594,34 +1411,6 @@
       ],
       "alias_labels": [
         "dendrite suppression"
-      ]
-    },
-    {
-      "id": "Phenomenon_dendrite_tip_growth",
-      "type": "Phenomenon",
-      "label": "dendrite tip growth",
-      "aliases": [
-        "Phenomenon_dendrite_tip_growth"
-      ],
-      "alias_labels_raw": [
-        "Phenomenon_dendrite_tip_growth"
-      ],
-      "alias_labels": [
-        "dendrite tip growth"
-      ]
-    },
-    {
-      "id": "Phenomenon_dendritic_growth",
-      "type": "Phenomenon",
-      "label": "dendritic growth",
-      "aliases": [
-        "Phenomenon_dendritic_growth"
-      ],
-      "alias_labels_raw": [
-        "Phenomenon_dendritic_growth"
-      ],
-      "alias_labels": [
-        "dendritic growth"
       ]
     },
     {
@@ -1752,20 +1541,37 @@
     },
     {
       "id": "Quantity_current_density",
-      "type": "Quantity",
+      "type": "Condition",
       "label": "current density",
       "aliases": [
+        "Condition_applied_current_density",
+        "Condition_constant_current_density",
+        "Condition_high_current_density",
         "Mechanism_current_density",
+        "Mechanism_current_density_distribution",
+        "Mechanism_current_density_effect",
+        "PhaseFieldIngredient_current_density_distribution",
         "Quantity_current_density",
         "Variable_current_density"
       ],
       "alias_labels_raw": [
+        "Condition_applied_current_density",
+        "Condition_constant_current_density",
+        "Condition_high_current_density",
         "Mechanism_current_density",
+        "Mechanism_current_density_distribution",
+        "Mechanism_current_density_effect",
+        "PhaseFieldIngredient_current_density_distribution",
         "Quantity_current_density",
         "Variable_current_density"
       ],
       "alias_labels": [
-        "current density"
+        "applied current density",
+        "constant current density",
+        "current density",
+        "current density distribution",
+        "current density effect",
+        "high current density"
       ]
     },
     {
@@ -1790,11 +1596,15 @@
         "Mechanism_dendrite_morphology",
         "Phenomenon_dendrite_growth",
         "Phenomenon_dendrite_growth_direction_and_morphology",
+        "Phenomenon_dendrite_growth_dissolution",
         "Phenomenon_dendrite_growth_morphology",
         "Phenomenon_dendrite_growth_path",
         "Phenomenon_dendrite_growth_rate",
         "Phenomenon_dendrite_growth_type",
+        "Phenomenon_dendrite_initiation_growth_velocity",
         "Phenomenon_dendrite_morphology",
+        "Phenomenon_dendrite_tip_growth",
+        "Phenomenon_dendritic_growth",
         "Phenomenon_morphology_of_dendrites",
         "Quantity_dendrite_growth",
         "Quantity_dendrite_growth_rate",
@@ -1804,11 +1614,15 @@
         "Mechanism_dendrite_morphology",
         "Phenomenon_dendrite_growth",
         "Phenomenon_dendrite_growth_direction_and_morphology",
+        "Phenomenon_dendrite_growth_dissolution",
         "Phenomenon_dendrite_growth_morphology",
         "Phenomenon_dendrite_growth_path",
         "Phenomenon_dendrite_growth_rate",
         "Phenomenon_dendrite_growth_type",
+        "Phenomenon_dendrite_initiation_growth_velocity",
         "Phenomenon_dendrite_morphology",
+        "Phenomenon_dendrite_tip_growth",
+        "Phenomenon_dendritic_growth",
         "Phenomenon_morphology_of_dendrites",
         "Quantity_dendrite_growth",
         "Quantity_dendrite_growth_rate",
@@ -1817,11 +1631,15 @@
       "alias_labels": [
         "dendrite growth",
         "dendrite growth direction and morphology",
+        "dendrite growth dissolution",
         "dendrite growth morphology",
         "dendrite growth path",
         "dendrite growth rate",
         "dendrite growth type",
+        "dendrite initiation growth velocity",
         "dendrite morphology",
+        "dendrite tip growth",
+        "dendritic growth",
         "morphology of dendrites"
       ]
     },
@@ -1870,37 +1688,6 @@
       ]
     },
     {
-      "id": "Quantity_li_concentration",
-      "type": "Quantity",
-      "label": "li concentration",
-      "aliases": [
-        "Quantity_li_concentration"
-      ],
-      "alias_labels_raw": [
-        "Quantity_li_concentration"
-      ],
-      "alias_labels": [
-        "li concentration"
-      ]
-    },
-    {
-      "id": "Quantity_lithium_concentration",
-      "type": "Quantity",
-      "label": "lithium concentration",
-      "aliases": [
-        "Quantity_lithium_concentration",
-        "Quantity_lithium_ion_concentration"
-      ],
-      "alias_labels_raw": [
-        "Quantity_lithium_concentration",
-        "Quantity_lithium_ion_concentration"
-      ],
-      "alias_labels": [
-        "lithium concentration",
-        "lithium ion concentration"
-      ]
-    },
-    {
       "id": "Quantity_lithium_ion_migration_pathway",
       "type": "Quantity",
       "label": "lithium ion migration pathway",
@@ -1915,32 +1702,21 @@
       ]
     },
     {
-      "id": "Quantity_lithium_morphology",
-      "type": "Quantity",
-      "label": "lithium morphology",
-      "aliases": [
-        "Quantity_lithium_morphology"
-      ],
-      "alias_labels_raw": [
-        "Quantity_lithium_morphology"
-      ],
-      "alias_labels": [
-        "lithium morphology"
-      ]
-    },
-    {
       "id": "Quantity_order_parameter_xi",
       "type": "ModelComponent",
       "label": "order parameter xi",
       "aliases": [
+        "ModelComponent_order_parameter",
         "ModelComponent_order_parameter_xi",
         "Quantity_order_parameter_xi"
       ],
       "alias_labels_raw": [
+        "ModelComponent_order_parameter",
         "ModelComponent_order_parameter_xi",
         "Quantity_order_parameter_xi"
       ],
       "alias_labels": [
+        "order parameter",
         "order parameter xi"
       ]
     },
@@ -2025,58 +1801,19 @@
       "label": "butler volmer equation",
       "aliases": [
         "ModelComponent_butler_volmer_equation",
-        "Relationship_butler_volmer_equation"
+        "ModelComponent_modified_phase_field_butler_volmer_equation",
+        "Relationship_butler_volmer_equation",
+        "Relationship_modified_phase_field_butler_volmer_equation"
       ],
       "alias_labels_raw": [
         "ModelComponent_butler_volmer_equation",
-        "Relationship_butler_volmer_equation"
-      ],
-      "alias_labels": [
-        "butler volmer equation"
-      ]
-    },
-    {
-      "id": "Relationship_modified_phase_field_butler_volmer_equation",
-      "type": "ModelComponent",
-      "label": "modified phase field butler volmer equation",
-      "aliases": [
         "ModelComponent_modified_phase_field_butler_volmer_equation",
-        "Relationship_modified_phase_field_butler_volmer_equation"
-      ],
-      "alias_labels_raw": [
-        "ModelComponent_modified_phase_field_butler_volmer_equation",
+        "Relationship_butler_volmer_equation",
         "Relationship_modified_phase_field_butler_volmer_equation"
       ],
       "alias_labels": [
+        "butler volmer equation",
         "modified phase field butler volmer equation"
-      ]
-    },
-    {
-      "id": "Relationship_space_charge_model_equation",
-      "type": "Relationship",
-      "label": "space charge model equation",
-      "aliases": [
-        "Relationship_space_charge_model_equation"
-      ],
-      "alias_labels_raw": [
-        "Relationship_space_charge_model_equation"
-      ],
-      "alias_labels": [
-        "space charge model equation"
-      ]
-    },
-    {
-      "id": "Relationship_surface_anisotropy_representation",
-      "type": "Relationship",
-      "label": "surface anisotropy representation",
-      "aliases": [
-        "Relationship_surface_anisotropy_representation"
-      ],
-      "alias_labels_raw": [
-        "Relationship_surface_anisotropy_representation"
-      ],
-      "alias_labels": [
-        "surface anisotropy representation"
       ]
     },
     {
@@ -2100,13 +1837,16 @@
       "type": "Quantity",
       "label": "diffusion coefficient",
       "aliases": [
+        "PhaseFieldIngredient_temperature_dependent_diffusion_coefficient",
         "Variable_diffusion_coefficient"
       ],
       "alias_labels_raw": [
+        "PhaseFieldIngredient_temperature_dependent_diffusion_coefficient",
         "Variable_diffusion_coefficient"
       ],
       "alias_labels": [
-        "diffusion coefficient"
+        "diffusion coefficient",
+        "temperature dependent diffusion coefficient"
       ]
     },
     {
@@ -2128,15 +1868,18 @@
       "type": "Quantity",
       "label": "surface energy",
       "aliases": [
+        "Mechanism_surface_energy_characterization",
         "PhaseFieldIngredient_surface_energy_term",
         "Variable_surface_energy"
       ],
       "alias_labels_raw": [
+        "Mechanism_surface_energy_characterization",
         "PhaseFieldIngredient_surface_energy_term",
         "Variable_surface_energy"
       ],
       "alias_labels": [
         "surface energy",
+        "surface energy characterization",
         "surface energy term"
       ]
     }
@@ -2159,7 +1902,7 @@
     },
     {
       "source": "Mechanism_anisotropic_diffusion",
-      "target": "Quantity_li_concentration",
+      "target": "Material_lithium",
       "relation": "INVOLVES",
       "papers": [
         "Paper_placeholder"
@@ -2191,7 +1934,7 @@
     },
     {
       "source": "Mechanism_anisotropic_strength",
-      "target": "Phenomenon_dendritic_growth",
+      "target": "Quantity_dendrite_morphology",
       "relation": "AFFECTS",
       "papers": [
         "10.1016/j.est.2025.119364"
@@ -2255,7 +1998,7 @@
     },
     {
       "source": "Mechanism_applied_voltage",
-      "target": "Phenomenon_dendritic_growth",
+      "target": "Quantity_dendrite_morphology",
       "relation": "AFFECTS",
       "papers": [
         "10.1016/j.est.2025.119364"
@@ -2366,7 +2109,7 @@
     },
     {
       "source": "Mechanism_charge_and_mass_transport",
-      "target": "Quantity_lithium_concentration",
+      "target": "Material_lithium",
       "relation": "INVOLVES",
       "papers": [
         "Paper_lithium_battery_dendrite_growth"
@@ -2412,8 +2155,25 @@
       "confidence": []
     },
     {
+      "source": "Mechanism_charge_voltage",
+      "target": "Mechanism_charge_voltage",
+      "relation": "MAPS_TO",
+      "papers": [
+        "https://doi.org/10.1016/j.jpowsour.2020.229203"
+      ],
+      "evidence": [
+        "In the simulations subject to high charge voltages, the concentration depletion occurs..."
+      ],
+      "certainty": [
+        "interpretive"
+      ],
+      "confidence": [
+        "medium"
+      ]
+    },
+    {
       "source": "Mechanism_composite_sei_formation",
-      "target": "Quantity_li_concentration",
+      "target": "Material_lithium",
       "relation": "INVOLVES",
       "papers": [
         "https://doi.org/10.1016/j.cej.2025.167340"
@@ -2442,38 +2202,6 @@
       "confidence": [
         "high"
       ]
-    },
-    {
-      "source": "Mechanism_current_density_distribution",
-      "target": "Mechanism_current_density_distribution",
-      "relation": "MAPS_TO",
-      "papers": [
-        "10.1016/j.jpowsour.2023.232779"
-      ],
-      "evidence": [
-        "The high current density located at the outermost surface..."
-      ],
-      "certainty": [
-        "interpretive"
-      ],
-      "confidence": [
-        "medium"
-      ]
-    },
-    {
-      "source": "Mechanism_current_density_effect",
-      "target": "Quantity_current_density",
-      "relation": "INVOLVES",
-      "papers": [
-        "10.1016/j.xcrp.2024.101961"
-      ],
-      "evidence": [
-        "set six different current densities of 1.00, 1.50, 1.98, 4.02, 6.00, and 7.98 mA/cm²."
-      ],
-      "certainty": [
-        "explicit"
-      ],
-      "confidence": []
     },
     {
       "source": "Mechanism_diffusion_migration",
@@ -2759,7 +2487,7 @@
     },
     {
       "source": "Mechanism_li3bi_alloy_network",
-      "target": "Quantity_li_concentration",
+      "target": "Material_lithium",
       "relation": "INVOLVES",
       "papers": [
         "https://doi.org/10.1016/j.cej.2025.167340"
@@ -2806,27 +2534,14 @@
     },
     {
       "source": "Mechanism_li_concentration_gradient",
-      "target": "Quantity_li_concentration",
+      "target": "Material_lithium",
       "relation": "INVOLVES",
       "papers": [
-        "10.1016/j.commatsci.2020.109919"
-      ],
-      "evidence": [
-        "Li+ concentration gradient direction could influence the direction of the needle-like lithium dendrite growth."
-      ],
-      "certainty": [
-        "explicit"
-      ],
-      "confidence": []
-    },
-    {
-      "source": "Mechanism_li_concentration_gradient",
-      "target": "Quantity_lithium_concentration",
-      "relation": "INVOLVES",
-      "papers": [
+        "10.1016/j.commatsci.2020.109919",
         "Paper_placeholder"
       ],
       "evidence": [
+        "Li+ concentration gradient direction could influence the direction of the needle-like lithium dendrite growth.",
         "ζ̃+ is the lithium-ion concentration."
       ],
       "certainty": [
@@ -2962,7 +2677,7 @@
     },
     {
       "source": "Mechanism_sei_formation_aging",
-      "target": "Quantity_lithium_morphology",
+      "target": "Mechanism_lithium_deposition_morphology",
       "relation": "INVOLVES",
       "papers": [
         "https://doi.org/10.1016/j.jpowsour.2020.229203"
@@ -3006,6 +2721,23 @@
         "explicit"
       ],
       "confidence": []
+    },
+    {
+      "source": "Mechanism_sei_fracture",
+      "target": "Mechanism_sei_fracture",
+      "relation": "MAPS_TO",
+      "papers": [
+        "10.1016/j.jpowsour.2023.232779"
+      ],
+      "evidence": [
+        "The presence of cracks within the fractured SEI provides a fast pathway..."
+      ],
+      "certainty": [
+        "interpretive"
+      ],
+      "confidence": [
+        "high"
+      ]
     },
     {
       "source": "Mechanism_self_diffusion_barrier",
@@ -3068,8 +2800,23 @@
       "confidence": []
     },
     {
+      "source": "Mechanism_space_charge_model",
+      "target": "Mechanism_space_charge_model",
+      "relation": "USES_RELATIONSHIP",
+      "papers": [
+        "Paper_placeholder"
+      ],
+      "evidence": [
+        "Brissot et al. described the concentration gradient in a cell with a small interelectrode distance quantitatively using Eq. (1)..."
+      ],
+      "certainty": [
+        "explicit"
+      ],
+      "confidence": []
+    },
+    {
       "source": "Mechanism_stress",
-      "target": "Phenomenon_dendritic_growth",
+      "target": "Quantity_dendrite_morphology",
       "relation": "AFFECTS",
       "papers": [
         "10.1016/j.est.2025.119364"
@@ -3101,7 +2848,7 @@
     },
     {
       "source": "Mechanism_stress_inelastic_deformation",
-      "target": "Phenomenon_dendrite_initiation_growth_velocity",
+      "target": "Quantity_dendrite_morphology",
       "relation": "AFFECTS",
       "papers": [
         "Paper_placeholder"
@@ -3113,23 +2860,6 @@
         "explicit"
       ],
       "confidence": []
-    },
-    {
-      "source": "Mechanism_surface_energy_characterization",
-      "target": "PhaseFieldIngredient_gradient_energy_density",
-      "relation": "MAPS_TO",
-      "papers": [
-        "doi:10.1016/j.ensm.2018.11.035"
-      ],
-      "evidence": [
-        "f grad = ∇ C ̃ ∙ ( k ( θ ) ∇ C ̃ ) / 2 is the gradient energy density to characterize the surface energy."
-      ],
-      "certainty": [
-        "interpretive"
-      ],
-      "confidence": [
-        "high"
-      ]
     },
     {
       "source": "Mechanism_thermodynamic_properties",
@@ -3163,7 +2893,7 @@
     },
     {
       "source": "Mechanism_uphill_diffusion",
-      "target": "Quantity_lithium_concentration",
+      "target": "Material_lithium",
       "relation": "INVOLVES",
       "papers": [
         "10.1016/j.est.2025.117367"
@@ -3268,6 +2998,21 @@
     },
     {
       "source": "Model_phase_field",
+      "target": "ModelComponent_allen_cahn_kinetics",
+      "relation": "HAS_COMPONENT",
+      "papers": [
+        "Paper_placeholder"
+      ],
+      "evidence": [
+        "Phase-field model is developed to simulate the evolution of realistic microstructures during Li deposition..."
+      ],
+      "certainty": [
+        "explicit"
+      ],
+      "confidence": []
+    },
+    {
+      "source": "Model_phase_field",
       "target": "ModelComponent_allen_cahn_reaction",
       "relation": "HAS_COMPONENT",
       "papers": [
@@ -3303,27 +3048,14 @@
       "papers": [
         "10.1016/j.est.2025.119364",
         "doi:10.1016/j.cclet.2022.107993",
+        "doi:10.1016/j.ensm.2018.11.035",
         "https://doi.org/10.1016/j.jechem.2025.06.045"
       ],
       "evidence": [
         "Boundary/initial conditions: Convection and radiation boundary conditions, boundary load for pressure",
         "Boundary/initial conditions: Dirichlet boundary conditions at top and bottom; Adiabatic boundary conditions at left and right.",
+        "Boundary/initial conditions: Initial Li metal protuberants introduced",
         "Boundary/initial conditions: Periodic boundary conditions, initial nucleation point at center"
-      ],
-      "certainty": [
-        "explicit"
-      ],
-      "confidence": []
-    },
-    {
-      "source": "Model_phase_field",
-      "target": "ModelComponent_boundary_initial_conditions",
-      "relation": "HAS_COMPONENT",
-      "papers": [
-        "doi:10.1016/j.ensm.2018.11.035"
-      ],
-      "evidence": [
-        "Boundary/initial conditions: Initial Li metal protuberants introduced"
       ],
       "certainty": [
         "explicit"
@@ -3349,34 +3081,21 @@
     },
     {
       "source": "Model_phase_field",
-      "target": "ModelComponent_evolution_equation_type",
-      "relation": "HAS_COMPONENT",
-      "papers": [
-        "doi:10.1016/j.ensm.2018.11.035"
-      ],
-      "evidence": [
-        "Evolution equation type: Electrochemical reaction-driven evolution equation"
-      ],
-      "certainty": [
-        "explicit"
-      ],
-      "confidence": []
-    },
-    {
-      "source": "Model_phase_field",
       "target": "ModelComponent_evolution_equations",
       "relation": "HAS_COMPONENT",
       "papers": [
         "10.1016/j.est.2025.119364",
         "10.1016/j.jpowsour.2024.236034",
         "doi:10.1016/j.cclet.2022.107993",
+        "doi:10.1016/j.ensm.2018.11.035",
         "https://doi.org/10.1016/j.jechem.2025.06.045"
       ],
       "evidence": [
         "\"The evolution equations for ξ and φ are given by Ref. [29]:\"",
         "Evolution equation type (Allen–Cahn / Cahn–Hilliard / other) and coupling fields: Non-conservative variable equation",
         "Evolution equation type (Allen–Cahn / Cahn–Hilliard / other) and coupling fields: Variational derivative of total free energy",
-        "Evolution equation type: Allen–Cahn type for ξ; includes electromigration, ion diffusion, and electrochemical reactions."
+        "Evolution equation type: Allen–Cahn type for ξ; includes electromigration, ion diffusion, and electrochemical reactions.",
+        "Evolution equation type: Electrochemical reaction-driven evolution equation"
       ],
       "certainty": [
         "explicit"
@@ -3403,29 +3122,16 @@
       "target": "ModelComponent_free_energy_functional_terms",
       "relation": "HAS_COMPONENT",
       "papers": [
+        "10.1016/j.est.2025.119364",
         "doi:10.1016/j.cclet.2022.107993",
         "doi:10.1016/j.ensm.2018.11.035",
         "https://doi.org/10.1016/j.jechem.2025.06.045"
       ],
       "evidence": [
         "Free energy functional terms (bulk, gradient/interfacial, electrochemical, elastic, etc.): Chemical potential, electrostatic energy, mechanical strain energy density",
+        "Free energy functional terms (bulk, gradient/interfacial, electrochemical, elastic, etc.): Chemical, gradient, electrochemical, elastic, noise",
         "Free energy functional terms: Bulk (f_h(C̃)), gradient/interfacial (f_grad(∇C̃)), electrochemical (f_elec(C̃, ϕ))",
         "Free energy functional terms: Chemical (f chem), interfacial (f intf), electric-field (f elec), noise field (f ns)."
-      ],
-      "certainty": [
-        "explicit"
-      ],
-      "confidence": []
-    },
-    {
-      "source": "Model_phase_field",
-      "target": "ModelComponent_free_energy_terms",
-      "relation": "HAS_COMPONENT",
-      "papers": [
-        "10.1016/j.est.2025.119364"
-      ],
-      "evidence": [
-        "Free energy functional terms (bulk, gradient/interfacial, electrochemical, elastic, etc.): Chemical, gradient, electrochemical, elastic, noise"
       ],
       "certainty": [
         "explicit"
@@ -3468,21 +3174,6 @@
     },
     {
       "source": "Model_phase_field",
-      "target": "ModelComponent_order_parameter",
-      "relation": "HAS_COMPONENT",
-      "papers": [
-        "10.1016/j.est.2025.119364"
-      ],
-      "evidence": [
-        "Order parameter(s) and meaning: ξ describes the lithium ion phase morphology"
-      ],
-      "certainty": [
-        "explicit"
-      ],
-      "confidence": []
-    },
-    {
-      "source": "Model_phase_field",
       "target": "ModelComponent_order_parameter_psi",
       "relation": "HAS_COMPONENT",
       "papers": [
@@ -3490,21 +3181,6 @@
       ],
       "evidence": [
         "Order parameter(s) and meaning: ψ (mechanical integrity)"
-      ],
-      "certainty": [
-        "explicit"
-      ],
-      "confidence": []
-    },
-    {
-      "source": "Model_phase_field",
-      "target": "ModelComponent_phase_field_variable",
-      "relation": "HAS_COMPONENT",
-      "papers": [
-        "doi:10.1016/j.ensm.2018.11.035"
-      ],
-      "evidence": [
-        "Order parameter(s) and meaning: Phase-field variable (ξ), dimensionless concentration of Li-atom"
       ],
       "certainty": [
         "explicit"
@@ -3545,14 +3221,31 @@
     },
     {
       "source": "Model_phase_field",
+      "target": "Model_phase_field",
+      "relation": "HAS_COMPONENT",
+      "papers": [
+        "doi:10.1016/j.ensm.2018.11.035"
+      ],
+      "evidence": [
+        "Order parameter(s) and meaning: Phase-field variable (ξ), dimensionless concentration of Li-atom"
+      ],
+      "certainty": [
+        "explicit"
+      ],
+      "confidence": []
+    },
+    {
+      "source": "Model_phase_field",
       "target": "Quantity_order_parameter_xi",
       "relation": "HAS_COMPONENT",
       "papers": [
+        "10.1016/j.est.2025.119364",
         "https://doi.org/10.1016/j.cej.2025.167340",
         "https://doi.org/10.1016/j.jechem.2025.06.045"
       ],
       "evidence": [
         "Order parameter(s) and meaning: ξ (lithium deposition states)",
+        "Order parameter(s) and meaning: ξ describes the lithium ion phase morphology",
         "The simulated phase-field order parameter (ξ), Li+ concentration (c Li +), electric potential (φ), effective stress (σ eff)..."
       ],
       "certainty": [
@@ -3570,7 +3263,8 @@
       ],
       "evidence": [
         "The electrochemical reaction at the solid/liquid interface is described by the Butler–Volmer equation.",
-        "The electrochemical reaction rate is obtained at the interface by Butler-Volmer equation..."
+        "The electrochemical reaction rate is obtained at the interface by Butler-Volmer equation...",
+        "We modify the phase-field Butler–Volmer equation (reactive Allen–Cahn)..."
       ],
       "certainty": [
         "explicit"
@@ -3596,7 +3290,7 @@
     },
     {
       "source": "Model_phase_field",
-      "target": "PhaseFieldIngredient_temperature_dependent_diffusion_coefficient",
+      "target": "Variable_diffusion_coefficient",
       "relation": "MAPS_TO",
       "papers": [
         "10.1016/j.jpowsour.2024.236034"
@@ -3620,36 +3314,6 @@
       ],
       "evidence": [
         "The Butler-Volmer kinetics (1) is a standard phenomenological model that describes the charge and mass transport at the electrode-electrolyte interface."
-      ],
-      "certainty": [
-        "explicit"
-      ],
-      "confidence": []
-    },
-    {
-      "source": "Model_phase_field_model",
-      "target": "ModelComponent_allen_cahn_kinetics",
-      "relation": "HAS_COMPONENT",
-      "papers": [
-        "Paper_placeholder"
-      ],
-      "evidence": [
-        "Phase-field model is developed to simulate the evolution of realistic microstructures during Li deposition..."
-      ],
-      "certainty": [
-        "explicit"
-      ],
-      "confidence": []
-    },
-    {
-      "source": "Model_phase_field_model",
-      "target": "Relationship_modified_phase_field_butler_volmer_equation",
-      "relation": "HAS_COMPONENT",
-      "papers": [
-        "Paper_placeholder"
-      ],
-      "evidence": [
-        "We modify the phase-field Butler–Volmer equation (reactive Allen–Cahn)..."
       ],
       "certainty": [
         "explicit"
@@ -3688,7 +3352,7 @@
     },
     {
       "source": "Parameter_phase_field_interface_thickness",
-      "target": "Model_phase_field_model",
+      "target": "Model_phase_field",
       "relation": "PARAMETER_OF",
       "papers": [
         "Paper_placeholder"
@@ -3700,23 +3364,6 @@
         "explicit"
       ],
       "confidence": []
-    },
-    {
-      "source": "PhaseFieldIngredient_charge_voltage_effect",
-      "target": "Mechanism_charge_voltage",
-      "relation": "MAPS_TO",
-      "papers": [
-        "https://doi.org/10.1016/j.jpowsour.2020.229203"
-      ],
-      "evidence": [
-        "In the simulations subject to high charge voltages, the concentration depletion occurs..."
-      ],
-      "certainty": [
-        "interpretive"
-      ],
-      "confidence": [
-        "medium"
-      ]
     },
     {
       "source": "PhaseFieldIngredient_electrochemical_energy_term",
@@ -3787,25 +3434,8 @@
       ]
     },
     {
-      "source": "PhaseFieldIngredient_sei_fracture_mechanism",
-      "target": "Mechanism_sei_fracture",
-      "relation": "MAPS_TO",
-      "papers": [
-        "10.1016/j.jpowsour.2023.232779"
-      ],
-      "evidence": [
-        "The presence of cracks within the fractured SEI provides a fast pathway..."
-      ],
-      "certainty": [
-        "interpretive"
-      ],
-      "confidence": [
-        "high"
-      ]
-    },
-    {
       "source": "PhaseFieldIngredient_stress_induced_splitting_mechanism",
-      "target": "Mechanism_stress_accumulation",
+      "target": "Mechanism_stress",
       "relation": "MAPS_TO",
       "papers": [
         "Paper_placeholder"
@@ -3822,7 +3452,7 @@
     },
     {
       "source": "PhaseFieldIngredient_surface_anisotropy_term",
-      "target": "Relationship_surface_anisotropy_representation",
+      "target": "PhaseFieldIngredient_surface_anisotropy_term",
       "relation": "MAPS_TO",
       "papers": [
         "Paper_placeholder"
@@ -3855,36 +3485,6 @@
       ]
     },
     {
-      "source": "Phenomenon_dendrite_growth_dissolution",
-      "target": "Quantity_overpotential",
-      "relation": "OCCURS_UNDER",
-      "papers": [
-        "10.1016/j.est.2025.117367"
-      ],
-      "evidence": [
-        "The applied overpotential ϕ is a key parameter that affects the reaction rate..."
-      ],
-      "certainty": [
-        "explicit"
-      ],
-      "confidence": []
-    },
-    {
-      "source": "Phenomenon_dendrite_nucleation",
-      "target": "Condition_applied_current_density",
-      "relation": "OCCURS_UNDER",
-      "papers": [
-        "Paper_lithium_battery_dendrite_growth"
-      ],
-      "evidence": [
-        "We simulate a lithium electrodeposition process at an applied current density of i = 10[mA/cm²]."
-      ],
-      "certainty": [
-        "explicit"
-      ],
-      "confidence": []
-    },
-    {
       "source": "Phenomenon_dendrite_nucleation",
       "target": "Condition_constant_voltage",
       "relation": "OCCURS_UNDER",
@@ -3908,6 +3508,21 @@
       ],
       "evidence": [
         "All the electrochemical tests were performed at room temperature."
+      ],
+      "certainty": [
+        "explicit"
+      ],
+      "confidence": []
+    },
+    {
+      "source": "Phenomenon_dendrite_nucleation",
+      "target": "Quantity_current_density",
+      "relation": "OCCURS_UNDER",
+      "papers": [
+        "Paper_lithium_battery_dendrite_growth"
+      ],
+      "evidence": [
+        "We simulate a lithium electrodeposition process at an applied current density of i = 10[mA/cm²]."
       ],
       "certainty": [
         "explicit"
@@ -3945,66 +3560,6 @@
       "confidence": []
     },
     {
-      "source": "Phenomenon_dendrite_tip_growth",
-      "target": "Condition_temperature_298_k",
-      "relation": "OCCURS_UNDER",
-      "papers": [
-        "doi:10.1016/j.cclet.2022.107993"
-      ],
-      "evidence": [
-        "Temperature: 298 K."
-      ],
-      "certainty": [
-        "explicit"
-      ],
-      "confidence": []
-    },
-    {
-      "source": "Phenomenon_dendrite_tip_growth",
-      "target": "Quantity_overpotential",
-      "relation": "OCCURS_UNDER",
-      "papers": [
-        "Paper_placeholder"
-      ],
-      "evidence": [
-        "The growth rate of dendrites is significantly accelerated after 10 s as the applied overpotential increases."
-      ],
-      "certainty": [
-        "explicit"
-      ],
-      "confidence": []
-    },
-    {
-      "source": "Phenomenon_dendritic_growth",
-      "target": "Condition_pressure",
-      "relation": "OCCURS_UNDER",
-      "papers": [
-        "10.1016/j.est.2025.119364"
-      ],
-      "evidence": [
-        "the model boundary load is set to 0 MPa, 1 MPa, 5 MPa, and 8 MPa, respectively."
-      ],
-      "certainty": [
-        "explicit"
-      ],
-      "confidence": []
-    },
-    {
-      "source": "Phenomenon_dendritic_growth",
-      "target": "Quantity_temperature",
-      "relation": "OCCURS_UNDER",
-      "papers": [
-        "10.1016/j.est.2025.119364"
-      ],
-      "evidence": [
-        "ambient temperatures of 273 K, 293 K, and 323 K are applied, respectively."
-      ],
-      "certainty": [
-        "explicit"
-      ],
-      "confidence": []
-    },
-    {
       "source": "Phenomenon_filament_growth",
       "target": "Quantity_electric_potential",
       "relation": "OCCURS_UNDER",
@@ -4021,7 +3576,7 @@
     },
     {
       "source": "Phenomenon_mossy_dendrite_formation",
-      "target": "Condition_constant_current_density",
+      "target": "Quantity_current_density",
       "relation": "OCCURS_UNDER",
       "papers": [
         "10.1016/j.jpowsour.2023.232779"
@@ -4066,7 +3621,7 @@
     },
     {
       "source": "Phenomenon_tip_growth",
-      "target": "Condition_high_current_density",
+      "target": "Quantity_current_density",
       "relation": "OCCURS_UNDER",
       "papers": [
         "10.1016/j.xcrp.2024.101961"
@@ -4108,6 +3663,38 @@
         "explicit"
       ],
       "confidence": []
+    },
+    {
+      "source": "Quantity_current_density",
+      "target": "Quantity_current_density",
+      "relation": "INVOLVES",
+      "papers": [
+        "10.1016/j.xcrp.2024.101961"
+      ],
+      "evidence": [
+        "set six different current densities of 1.00, 1.50, 1.98, 4.02, 6.00, and 7.98 mA/cm²."
+      ],
+      "certainty": [
+        "explicit"
+      ],
+      "confidence": []
+    },
+    {
+      "source": "Quantity_current_density",
+      "target": "Quantity_current_density",
+      "relation": "MAPS_TO",
+      "papers": [
+        "10.1016/j.jpowsour.2023.232779"
+      ],
+      "evidence": [
+        "The high current density located at the outermost surface..."
+      ],
+      "certainty": [
+        "interpretive"
+      ],
+      "confidence": [
+        "medium"
+      ]
     },
     {
       "source": "Quantity_dendrite_morphology",
@@ -4224,13 +3811,28 @@
     },
     {
       "source": "Quantity_dendrite_morphology",
-      "target": "Condition_high_current_density",
+      "target": "Condition_pressure",
       "relation": "OCCURS_UNDER",
       "papers": [
-        "Paper_placeholder"
+        "10.1016/j.est.2025.119364"
       ],
       "evidence": [
-        "poor cycling stability of alkali metal anodes in practical applications, especially at large capacities (>3.0 mAh cm−2) and high currents (>3.0 mA cm−2)."
+        "the model boundary load is set to 0 MPa, 1 MPa, 5 MPa, and 8 MPa, respectively."
+      ],
+      "certainty": [
+        "explicit"
+      ],
+      "confidence": []
+    },
+    {
+      "source": "Quantity_dendrite_morphology",
+      "target": "Condition_temperature_298_k",
+      "relation": "OCCURS_UNDER",
+      "papers": [
+        "doi:10.1016/j.cclet.2022.107993"
+      ],
+      "evidence": [
+        "Temperature: 298 K."
       ],
       "certainty": [
         "explicit"
@@ -4269,13 +3871,47 @@
     },
     {
       "source": "Quantity_dendrite_morphology",
+      "target": "Quantity_current_density",
+      "relation": "OCCURS_UNDER",
+      "papers": [
+        "Paper_placeholder"
+      ],
+      "evidence": [
+        "poor cycling stability of alkali metal anodes in practical applications, especially at large capacities (>3.0 mAh cm−2) and high currents (>3.0 mA cm−2)."
+      ],
+      "certainty": [
+        "explicit"
+      ],
+      "confidence": []
+    },
+    {
+      "source": "Quantity_dendrite_morphology",
       "target": "Quantity_overpotential",
       "relation": "OCCURS_UNDER",
       "papers": [
+        "10.1016/j.est.2025.117367",
+        "Paper_placeholder",
         "doi:10.1016/j.nanoen.2021.106057"
       ],
       "evidence": [
-        "The electrochemical driving force arises from the negative overpotential..."
+        "The applied overpotential ϕ is a key parameter that affects the reaction rate...",
+        "The electrochemical driving force arises from the negative overpotential...",
+        "The growth rate of dendrites is significantly accelerated after 10 s as the applied overpotential increases."
+      ],
+      "certainty": [
+        "explicit"
+      ],
+      "confidence": []
+    },
+    {
+      "source": "Quantity_dendrite_morphology",
+      "target": "Quantity_temperature",
+      "relation": "OCCURS_UNDER",
+      "papers": [
+        "10.1016/j.est.2025.119364"
+      ],
+      "evidence": [
+        "ambient temperatures of 273 K, 293 K, and 323 K are applied, respectively."
       ],
       "certainty": [
         "explicit"
@@ -4316,7 +3952,7 @@
     },
     {
       "source": "Quantity_temperature",
-      "target": "Phenomenon_dendritic_growth",
+      "target": "Quantity_dendrite_morphology",
       "relation": "AFFECTS",
       "papers": [
         "10.1016/j.est.2025.119364"
@@ -4469,29 +4105,14 @@
       "confidence": []
     },
     {
-      "source": "Relationship_modified_phase_field_butler_volmer_equation",
-      "target": "Relationship_modified_phase_field_butler_volmer_equation",
+      "source": "Relationship_butler_volmer_equation",
+      "target": "Relationship_butler_volmer_equation",
       "relation": "USES_RELATIONSHIP",
       "papers": [
         "Paper_placeholder"
       ],
       "evidence": [
         "We modify the phase-field Butler–Volmer equation (reactive Allen–Cahn)..."
-      ],
-      "certainty": [
-        "explicit"
-      ],
-      "confidence": []
-    },
-    {
-      "source": "Relationship_space_charge_model_equation",
-      "target": "Mechanism_space_charge_model",
-      "relation": "USES_RELATIONSHIP",
-      "papers": [
-        "Paper_placeholder"
-      ],
-      "evidence": [
-        "Brissot et al. described the concentration gradient in a cell with a small interelectrode distance quantitatively using Eq. (1)..."
       ],
       "certainty": [
         "explicit"
@@ -4554,6 +4175,23 @@
       ],
       "evidence": [
         "A thermodynamic parameter, surface energy, is introduced herein to understand the formation and growth of Li dendrites."
+      ],
+      "certainty": [
+        "interpretive"
+      ],
+      "confidence": [
+        "high"
+      ]
+    },
+    {
+      "source": "Variable_surface_energy",
+      "target": "PhaseFieldIngredient_gradient_energy_density",
+      "relation": "MAPS_TO",
+      "papers": [
+        "doi:10.1016/j.ensm.2018.11.035"
+      ],
+      "evidence": [
+        "f grad = ∇ C ̃ ∙ ( k ( θ ) ∇ C ̃ ) / 2 is the gradient energy density to characterize the surface energy."
       ],
       "certainty": [
         "interpretive"
