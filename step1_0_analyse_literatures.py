@@ -3,6 +3,7 @@ from __future__ import annotations
 import os, json
 import tqdm
 
+from tools.file_loaderv2 import extract_elsevier_fulltext_xml
 from tools.llm import create_chat_model
 
 with open("config/api_config.json", "r") as f:
@@ -186,39 +187,36 @@ GUIDANCE:
 </Task>
 """
 
-# resource_dir = "output/scopus_dendrite"
-resource_dir = "output/step1_results"
-output_dir = "output/step2_results"
+resource_dir = "data/full_texts"
+output_dir = "data/step1_results"
+# output_dir = "output/step2_results"
 if not os.path.exists(output_dir):
     os.makedirs(output_dir)
 
-for od in os.listdir(resource_dir):
+for od in tqdm.tqdm(os.listdir(resource_dir)):
 
-    output_sub_dir = os.path.join(output_dir, od)
-    if not os.path.exists(output_sub_dir):
-        os.mkdir(output_sub_dir)
+    if not od.endswith(".xml"):
+        continue
 
-    for f in tqdm.tqdm(os.listdir(os.path.join(resource_dir, od))):
+    if os.path.exists(os.path.join(output_dir, od[:-4] + ".txt")):
+        continue
 
-        if os.path.exists(os.path.join(output_sub_dir, f[:-4] + ".txt")):
-            continue
+    file_p = os.path.join(resource_dir, od)
+    content = extract_elsevier_fulltext_xml(file_p)['full_text']
+    # with open(file_p, "r", encoding="utf-8") as file:
+    #     content = file.read()
 
-        file_p = os.path.join(resource_dir, od, f)
-        # content = extract_elsevier_fulltext_xml(file_p)['full_text']
-        with open(file_p, "r", encoding="utf-8") as file:
-            content = file.read()
-
-        task_formatted = task_description2 + f"""
+    task_formatted = task_description1 + f"""
 <Content>
 {content}
 </Content>
 """
 
-        message = worker_llm.invoke(task_formatted)
-        print(message.content)
+    message = worker_llm.invoke(task_formatted)
+    print(message.content)
 
-        with open(os.path.join(output_sub_dir, f[:-4] + ".txt"), "w") as file:
-            file.write(message.content)
+    with open(os.path.join(output_dir, od[:-4] + ".txt"), "w") as file:
+        file.write(message.content)
 
 # input tokens 6052, output tokens 7400
 # 9119, 1980

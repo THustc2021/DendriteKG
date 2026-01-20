@@ -1,8 +1,0 @@
-{
-    "OPENAI_MODEL": "gpt-4o",
-    "OPENAI_CONFIG":{
-        "agicto": ["https://api.agicto.cn/v1", "sk-dQKLxpqRUqeQZW3hknXigAoHWh1huaEi5gWpyyyTU8WObJ54"]
-    },
-    "OLLAMA_BASE_URL": "http://localhost:11434",
-    "OLLAMA_MODEL": "gemma:7b"
-}
