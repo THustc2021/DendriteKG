@@ -396,8 +396,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--in_graph", required=True, help="Input graph JSON with {nodes, edges}")
     ap.add_argument("--out_graph", default="kg_out/kg_postprocessed.json", help="Output postprocessed graph JSON")
-    ap.add_argument("--out_map", default="kg_operation_reports/kg_id_map.json", help="Output node id mapping (old->new)")
-    ap.add_argument("--out_report", default="kg_operation_reports/kg_postprocess_report.json", help="Output report JSON")
+    ap.add_argument("--out_map", default="data/step3_kg_operation_reports/kg_id_map.json", help="Output node id mapping (old->new)")
+    ap.add_argument("--out_report", default="data/step3_kg_operation_reports/kg_postprocess_report.json", help="Output report JSON")
 
     ap.add_argument("--model", default="sentence-transformers/all-MiniLM-L6-v2", help="SentenceTransformer model")
     ap.add_argument("--threshold", type=float, default=0.90, help="Cosine similarity threshold for merging")

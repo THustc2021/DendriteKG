@@ -115,7 +115,7 @@ def remove_paper_nodes_and_incident_edges(graph: Dict[str, Any]) -> Dict[str, An
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--in_dir", required=True, help="Directory containing *.txt files")
-    ap.add_argument("--out_dir", default="data", help="Output directory")
+    ap.add_argument("--out_dir", default="kg_out", help="Output directory")
     args = ap.parse_args()
 
     os.makedirs(args.out_dir, exist_ok=True)

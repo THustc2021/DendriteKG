@@ -134,7 +134,7 @@ You will be given a paper summary text (generated in a previous step). The summa
 Material/System, Conditions, Phenomena, Mechanisms, Variables, Relationships/Laws, Parameters, and Phase-field mapping notes.
 
 GOAL:
-Extract comprehensive knowledge graph triples to support designing a physically reasonable PHASE-FIELD model of lithium dendrite growth in lithium-ion batteries with LIQUID electrolytes.
+Extract comprehensive knowledge graph triples to support designing a physically reasonable PHASE-FIELD model.
 
 SCHEMA (YOU MUST FOLLOW):
 Entity types: Paper, Material, Electrolyte, Interface, CellComponent, Geometry, Condition, Quantity, Parameter, Phenomenon, Mechanism, Relationship, Model, ModelComponent, PhaseFieldIngredient.
@@ -187,9 +187,9 @@ GUIDANCE:
 </Task>
 """
 
-resource_dir = "data/full_texts"
-output_dir = "data/step1_results"
-# output_dir = "output/step2_results"
+# resource_dir = "data/full_texts"
+resource_dir = "data/step1_results"
+output_dir = "data/step2_results"
 if not os.path.exists(output_dir):
     os.makedirs(output_dir)
 
@@ -199,31 +199,31 @@ for od in tqdm.tqdm(os.listdir(resource_dir)):
     if os.path.exists(os.path.join(output_dir, od[:-4] + ".txt")):
         continue
 
-    if not od.endswith(".xml"):
-        continue
+    # if not od.endswith(".xml"):
+    #     continue
 
     file_p = os.path.join(resource_dir, od)
-    content = extract_elsevier_fulltext_xml(file_p).full_text
+    # content = extract_elsevier_fulltext_xml(file_p).full_text
+    with open(file_p, "r", encoding="utf-8") as file:
+        content = file.read()
 
-    if content.count("phase-field") < 3:
-        continue
+    # if content.count("phase-field") < 5 or content.count("dendrite") < 5 or content.count("lithium") < 5:
+    #     continue
+
     num += 1
     print(num)
 
-    # with open(file_p, "r", encoding="utf-8") as file:
-    #     content = file.read()
-
-    task_formatted = task_description1 + f"""
+    task_formatted = task_description2 + f"""
 <Content>
 {content}
 </Content>
 """
 
-    # message = worker_llm.invoke(task_formatted)
-    # print(message.content)
-    #
-    # with open(os.path.join(output_dir, od[:-4] + ".txt"), "w") as file:
-    #     file.write(message.content)
+    message = worker_llm.invoke(task_formatted)
+    print(message.content)
+
+    with open(os.path.join(output_dir, od[:-4] + ".txt"), "w", encoding="utf-8") as file:
+        file.write(message.content)
 
 # input tokens 6052, output tokens 7400
 # 9119, 1980
