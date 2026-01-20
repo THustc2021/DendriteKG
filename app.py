@@ -512,6 +512,11 @@ by_type = build_type_index(nodes_for_index)
 with st.sidebar:
     center = pick_center_from_sections(by_type=by_type, default_type="Phenomenon")
 
+    hops = st.slider("Path length (hops)", 1, 6, 2)
+    all_relations = sorted({d.get("relation", "related_to") for _, _, _, d in G_full.edges(keys=True, data=True)})
+    rel_selected = st.multiselect("Filter relations", options=all_relations, default=all_relations)
+    relation_filter = set(rel_selected) if rel_selected else None
+
     st.divider()
     st.header("Performance")
     auto_limit = st.toggle("Auto-limit subgraph size", value=True)
@@ -523,8 +528,10 @@ with st.sidebar:
     physics = st.toggle("Physics (better spacing)", value=True)
     spring_length = st.slider("Spacing (spring length)", 140, 520, 300, 20)
     avoid_overlap = st.slider("Avoid overlap", 0.0, 2.0, 1.2, 0.1)
+    smart_anti_overlap = st.toggle("Prevent label overlap (smart)", value=True)
 
     show_edge_labels = st.toggle("Show edge labels", value=False)
+
 
     # Keep full names, but to prevent overlap we can hide distant labels entirely
     st.caption("To prevent text overlap, the app can hide distant labels (hover still shows full names).")
@@ -534,18 +541,6 @@ with st.sidebar:
     st.header("View")
     height_px = st.slider("Graph height (px)", 450, 1100, 820, 50)
 
-# ---- Right side controls ----
-all_relations = sorted({d.get("relation", "related_to") for _, _, _, d in G_full.edges(keys=True, data=True)})
-
-top_left, top_mid, top_right = st.columns([1.0, 1.0, 2.0])
-with top_left:
-    hops = st.slider("Path length (hops)", 1, 6, 2)
-with top_mid:
-    smart_anti_overlap = st.toggle("Prevent label overlap (smart)", value=True)
-with top_right:
-    rel_selected = st.multiselect("Filter relations", options=all_relations, default=all_relations)
-
-relation_filter = set(rel_selected) if rel_selected else None
 
 # Stats
 with st.expander("Graph stats (full selected graph)", expanded=False):
