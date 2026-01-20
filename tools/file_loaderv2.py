@@ -51,7 +51,33 @@ class ExtractedArticle:
 
 def _strip_ws(s: str) -> str:
     s = re.sub(r"\s+", " ", s or "").strip()
+    # Some Elsevier exports use U+E5F8 (private-use) as a dash separator.
+    s = s.replace("\ue5f8", "-")
     return s
+
+
+def _clean_rawtext(raw_text: str) -> str:
+    """Best-effort cleanup for xocs:rawtext.
+
+    For some older/scanned articles Elsevier provides only xocs:rawtext (often OCR-like).
+    We normalize whitespace while keeping paragraph-ish breaks.
+    """
+    if not raw_text:
+        return ""
+
+    t = raw_text.replace("\ue5f8", "-")
+    t = t.replace("\r\n", "\n").replace("\r", "\n")
+
+    # Collapse runs of spaces/tabs but keep newlines
+    t = re.sub(r"[\t\f\v ]+", " ", t)
+
+    # Remove leading/trailing spaces on each line
+    t = "\n".join(line.strip() for line in t.split("\n"))
+
+    # Collapse many blank lines
+    t = re.sub(r"\n{3,}", "\n\n", t).strip()
+
+    return t
 
 
 def _localname(tag: str) -> str:
@@ -96,6 +122,9 @@ def _iter_section_blocks(root: ET.Element, ns: Dict[str, str]) -> Iterable[Tuple
 
     # The body commonly lives under: originalText/xocs:doc/.../ce:sections
     # We keep it flexible: search any ce:section-title and ce:para under originalText.
+    # Some older articles (especially scanned/OCR conversions) may NOT include structured
+    # ce:para nodes; in those cases Elsevier often provides an OCR/plain-text dump in
+    # xocs:rawtext. That fallback is handled in extract_elsevier_fulltext_xml().
     original = root.find(".//{*}originalText")
     search_root = original if original is not None else root
 
@@ -142,24 +171,46 @@ def extract_elsevier_fulltext_xml(xml_path: str) -> ExtractedArticle:
     publisher = _find_text(root, ".//{*}coredata/{*}publisher", ns)
     copyright_txt = _find_text(root, ".//{*}coredata/{*}copyright", ns)
 
-    # Keywords: dcterms:subject repeats
-    keywords = _find_all_text(root, ".//{*}coredata/{*}subject", ns)
+    # Keywords: dcterms:subject repeats.
+    # Elsevier sometimes returns a single comma-separated string; normalize to a list.
+    _kw_raw = _find_all_text(root, ".//{*}coredata/{*}subject", ns)
+    keywords: List[str] = []
+    for kw in _kw_raw:
+        # split on commas/semicolons, but keep multi-word phrases intact
+        parts = [p.strip() for p in re.split(r"[;,]", kw) if p.strip()]
+        if len(parts) <= 1:
+            keywords.append(kw)
+        else:
+            keywords.extend(parts)
 
     # Abstract/description: dc:description
     abstract = _find_text(root, ".//{*}coredata/{*}description", ns)
 
-    # Full text body
+    # Full text body (best-effort):
+    # 1) Prefer structured blocks (section titles + paragraphs)
+    # 2) Fallback to xocs:rawtext (OCR/plain text) if structured body is missing
     blocks: List[str] = []
+    para_count = 0
     for kind, text in _iter_section_blocks(root, ns):
         if kind == "h":
-            # Make headings stand out
             blocks.append(f"\n## {text}\n")
         else:
             blocks.append(text)
+            para_count += 1
 
-    # Join and lightly clean
-    full_text = "\n".join(blocks)
-    full_text = re.sub(r"\n{3,}", "\n\n", full_text).strip()
+    full_text = re.sub(r"\n{3,}", "\n\n", "\n".join(blocks)).strip()
+
+    # Heuristic fallback: if structured body is missing (common for scanned/OCR conversions),
+    # use xocs:rawtext as the best available "full text".
+    only_headings = para_count == 0 and bool(full_text)
+    looks_like_stub = para_count < 2 and re.fullmatch(r"(?s)(\s*##\s+\w+\s*)+", full_text or "") is not None
+
+    if len(full_text) < 200 or only_headings or looks_like_stub:
+        raw = root.find(".//{http://www.elsevier.com/xml/xocs/dtd}rawtext")
+        if raw is not None:
+            raw_text = _clean_rawtext("".join(raw.itertext()))
+            if raw_text:
+                full_text = raw_text
 
     return ExtractedArticle(
         source_file=os.path.abspath(xml_path),
@@ -237,3 +288,7 @@ def main(argv: List[str]) -> int:
         _write_json(results, index_out)
 
     return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main(sys.argv[1:]))

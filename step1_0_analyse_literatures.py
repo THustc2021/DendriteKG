@@ -193,16 +193,23 @@ output_dir = "data/step1_results"
 if not os.path.exists(output_dir):
     os.makedirs(output_dir)
 
+num = 0
 for od in tqdm.tqdm(os.listdir(resource_dir)):
-
-    if not od.endswith(".xml"):
-        continue
 
     if os.path.exists(os.path.join(output_dir, od[:-4] + ".txt")):
         continue
 
+    if not od.endswith(".xml"):
+        continue
+
     file_p = os.path.join(resource_dir, od)
-    content = extract_elsevier_fulltext_xml(file_p)['full_text']
+    content = extract_elsevier_fulltext_xml(file_p).full_text
+
+    if content.count("phase-field") < 3:
+        continue
+    num += 1
+    print(num)
+
     # with open(file_p, "r", encoding="utf-8") as file:
     #     content = file.read()
 
@@ -212,11 +219,11 @@ for od in tqdm.tqdm(os.listdir(resource_dir)):
 </Content>
 """
 
-    message = worker_llm.invoke(task_formatted)
-    print(message.content)
-
-    with open(os.path.join(output_dir, od[:-4] + ".txt"), "w") as file:
-        file.write(message.content)
+    # message = worker_llm.invoke(task_formatted)
+    # print(message.content)
+    #
+    # with open(os.path.join(output_dir, od[:-4] + ".txt"), "w") as file:
+    #     file.write(message.content)
 
 # input tokens 6052, output tokens 7400
 # 9119, 1980
