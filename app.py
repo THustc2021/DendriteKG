@@ -1,18 +1,18 @@
 # app.py
 import json
-import os
 import math
+import os
 import tempfile
-from typing import Dict, Any, List, Set, Tuple, Optional
+from typing import Any, Dict, List, Optional, Set, Tuple
 
-import streamlit as st
 import networkx as nx
+import streamlit as st
 from pyvis.network import Network
 
 st.set_page_config(page_title="Knowledge Graph Viewer", page_icon="🧠", layout="wide")
 
 # -----------------------------
-# Defaults (tune as needed)
+# Defaults
 # -----------------------------
 DEFAULT_MAX_NODES = 350
 DEFAULT_MAX_EDGES = 1200
@@ -85,10 +85,10 @@ def build_nx_graph(nodes: List[Dict[str, Any]], edges: List[Dict[str, Any]]) -> 
             s,
             t,
             relation=r,
-            evidence=e.get("evidence", []),
-            papers=e.get("papers", []),
-            certainty=e.get("certainty", []),
-            confidence=e.get("confidence", []),
+            evidence=e.get("evidence", []) or [],
+            papers=e.get("papers", []) or [],
+            certainty=e.get("certainty", []) or [],
+            confidence=e.get("confidence", []) or [],
         )
     return G
 
@@ -100,7 +100,7 @@ def to_undirected_simple(G: nx.MultiDiGraph) -> nx.Graph:
     """Collapse MultiDiGraph into undirected simple graph for distances/degrees."""
     und = nx.Graph()
     und.add_nodes_from(G.nodes(data=True))
-    for u, v, k in G.edges(keys=True):
+    for u, v, _k in G.edges(keys=True):
         und.add_edge(u, v)
     return und
 
@@ -111,7 +111,6 @@ def ego_subgraph(G: nx.MultiDiGraph, center: str, hops: int) -> nx.MultiDiGraph:
         return G
 
     und = to_undirected_simple(G)
-
     nodes: Set[str] = {center}
     frontier: Set[str] = {center}
     for _ in range(hops):
@@ -125,12 +124,18 @@ def ego_subgraph(G: nx.MultiDiGraph, center: str, hops: int) -> nx.MultiDiGraph:
     return G.subgraph(nodes).copy()
 
 
-def limit_graph_size(G: nx.MultiDiGraph, center: str, max_nodes: int, max_edges: int) -> nx.MultiDiGraph:
-    """
-    If subgraph is too large, keep:
-    - center node
-    - highest-degree nodes (in undirected projection)
-    - highest "importance" edges (degree(u)+degree(v))
+def limit_graph_size(
+    G: nx.MultiDiGraph,
+    center: Optional[str],
+    max_nodes: int,
+    max_edges: int,
+) -> nx.MultiDiGraph:
+    """Limit graph size for performance.
+
+    Strategy:
+    - keep high-degree nodes (in undirected projection)
+    - if center provided, always keep it
+    - keep top edges by endpoint-degree score
     """
     if G.number_of_nodes() <= max_nodes and G.number_of_edges() <= max_edges:
         return G
@@ -138,23 +143,27 @@ def limit_graph_size(G: nx.MultiDiGraph, center: str, max_nodes: int, max_edges:
     und = to_undirected_simple(G)
     deg = dict(und.degree())
 
-    # Always keep center, then high-degree nodes
-    nodes_sorted = sorted(G.nodes(), key=lambda n: (n != center, -deg.get(n, 0), str(n)))
+    def sort_key(n: str):
+        # Put center (if any) at the front
+        center_penalty = 0 if (center is not None and n == center) else 1
+        return (center_penalty, -deg.get(n, 0), str(n))
+
+    nodes_sorted = sorted(G.nodes(), key=sort_key)
     keep_nodes = set(nodes_sorted[:max_nodes])
-    keep_nodes.add(center)
+    if center is not None and center in G:
+        keep_nodes.add(center)
 
     SG = G.subgraph(keep_nodes).copy()
 
-    # If too many edges, keep top edges by endpoint degrees
     if SG.number_of_edges() > max_edges:
-        scored = []
+        scored: List[Tuple[int, str, str, int]] = []
         for u, v, k in SG.edges(keys=True):
             scored.append((deg.get(u, 0) + deg.get(v, 0), u, v, k))
         scored.sort(reverse=True)
 
         H = nx.MultiDiGraph()
         H.add_nodes_from(SG.nodes(data=True))
-        for _, u, v, k in scored[:max_edges]:
+        for _score, u, v, k in scored[:max_edges]:
             H.add_edge(u, v, **SG.edges[u, v, k])
         SG = H
 
@@ -169,9 +178,7 @@ def shortest_distances(und: nx.Graph, center: str, cutoff: int) -> Dict[str, int
 
 @st.cache_data(show_spinner=False)
 def build_type_index(nodes: List[Dict[str, Any]]) -> Dict[str, List[Tuple[str, str]]]:
-    """
-    Returns mapping: type -> list of (node_id, node_label)
-    """
+    """Returns mapping: type -> list of (node_id, node_label)."""
     by_type: Dict[str, List[Tuple[str, str]]] = {}
     for n in nodes:
         nid = str(n.get("id"))
@@ -179,7 +186,6 @@ def build_type_index(nodes: List[Dict[str, Any]]) -> Dict[str, List[Tuple[str, s
         label = str(n.get("label", nid))
         by_type.setdefault(ntype, []).append((nid, label))
 
-    # Sort by label for nice browsing (no filtering UI per request)
     for t in by_type:
         by_type[t].sort(key=lambda x: x[1].lower())
 
@@ -190,28 +196,29 @@ def pick_center_from_sections(
     by_type: Dict[str, List[Tuple[str, str]]],
     default_type: str,
 ) -> Optional[str]:
-    """
-    Sidebar: user chooses a section (type), then picks a node from that section only.
-    Requirements:
-      - no search/filter
-      - picker shows only current section nodes
-      - option label shows ONLY node name (no type, no id suffix)
-    """
+    """Sidebar node picker (no search/filter, show labels only)."""
     st.sidebar.header("Main Nodes (by type)")
 
-    available_types = [t for t in TYPE_ORDER if t in by_type] + sorted([t for t in by_type.keys() if t not in TYPE_ORDER])
+    available_types = [t for t in TYPE_ORDER if t in by_type] + sorted(
+        [t for t in by_type.keys() if t not in TYPE_ORDER]
+    )
     if not available_types:
         st.sidebar.info("No nodes available.")
         return None
 
-    # remember chosen type
     if "selected_type" not in st.session_state:
-        st.session_state["selected_type"] = default_type if default_type in available_types else available_types[0]
+        st.session_state["selected_type"] = (
+            default_type if default_type in available_types else available_types[0]
+        )
 
     selected_type = st.sidebar.selectbox(
         "Section (node type)",
         options=available_types,
-        index=available_types.index(st.session_state["selected_type"]) if st.session_state["selected_type"] in available_types else 0,
+        index=(
+            available_types.index(st.session_state["selected_type"])
+            if st.session_state["selected_type"] in available_types
+            else 0
+        ),
         key="selected_type",
     )
 
@@ -220,18 +227,15 @@ def pick_center_from_sections(
         st.sidebar.info("No nodes in this section.")
         return None
 
-    # Only show labels; return id
     labels = [lab for _, lab in candidates]
     ids = [nid for nid, _ in candidates]
 
-    # remember chosen node id
     if "center_node_id" not in st.session_state or st.session_state["center_node_id"] not in ids:
         st.session_state["center_node_id"] = ids[0]
 
     idx = ids.index(st.session_state["center_node_id"]) if st.session_state["center_node_id"] in ids else 0
     chosen_label = st.sidebar.selectbox("Pick a node in this section", options=labels, index=idx)
 
-    # map back to id (first match; if duplicates exist, still stable enough in practice)
     chosen_idx = labels.index(chosen_label)
     center_id = ids[chosen_idx]
     st.session_state["center_node_id"] = center_id
@@ -244,25 +248,24 @@ def pick_center_from_sections(
 def graph_to_payload(
     G_display: nx.MultiDiGraph,
     G_full: nx.MultiDiGraph,
-    center: str,
+    center: Optional[str],
     hops: int,
     relation_filter: Optional[Set[str]],
     faint_alpha: float,
     hide_distant_labels: bool,
+    node_size_multiplier: float,
 ) -> Tuple[List[Tuple], List[Tuple]]:
-    """
-    nodes_payload item:
-      (nid, label_to_show, label_full, ntype, size, font_rgba, font_size, is_focus_or_neighbor)
-    edges_payload item:
-      (u, v, rel, papers_n, ev0)
-    """
-    und_display = to_undirected_simple(G_display)
-    dist = shortest_distances(und_display, center, cutoff=hops)
+    """Convert graphs into simple tuples (cache-friendly) for PyVis."""
+
+    # Distances are only meaningful when center exists and we're in ego view
+    dist: Dict[str, int] = {}
+    if center is not None and center in G_display:
+        und_display = to_undirected_simple(G_display)
+        dist = shortest_distances(und_display, center, cutoff=hops)
 
     und_full = to_undirected_simple(G_full)
     deg_full = dict(und_full.degree())
 
-    # degree -> size (sqrt scaling)
     max_deg = max(deg_full.values()) if deg_full else 1
     max_sqrt = math.sqrt(max_deg) if max_deg > 0 else 1.0
 
@@ -270,7 +273,8 @@ def graph_to_payload(
         d = deg_full.get(nid, 0)
         base = 10.0
         span = 26.0
-        return base + span * (math.sqrt(d) / max_sqrt if max_sqrt > 0 else 0.0)
+        raw = base + span * (math.sqrt(d) / max_sqrt if max_sqrt > 0 else 0.0)
+        return raw * node_size_multiplier
 
     nodes_payload: List[Tuple] = []
     for nid in G_display.nodes():
@@ -278,14 +282,16 @@ def graph_to_payload(
         ntype = str(G_display.nodes[nid].get("type", "Unknown"))
 
         d = dist.get(nid, 999999)
-        focus_or_neighbor = (nid == center) or (d == 1)
+        focus_or_neighbor = bool(center) and ((nid == center) or (d == 1))
 
-        # Label policy (NO ellipsis):
-        # - center + 1-hop neighbor: show full label
-        # - others: show faint full label OR hide completely (anti-overlap mode)
-        if focus_or_neighbor:
+        # Label policy (NO ellipsis)
+        if center is not None and nid == center:
             alpha = 1.0
-            font_size = 16 if nid == center else 13
+            font_size = 16
+            label_show = label_full
+        elif focus_or_neighbor:
+            alpha = 1.0
+            font_size = 13
             label_show = label_full
         else:
             if hide_distant_labels:
@@ -300,15 +306,18 @@ def graph_to_payload(
         font_rgba = f"rgba(40,40,40,{alpha:.2f})"
 
         size = node_size(nid)
-        if nid == center:
-            size *= 1.25
-        elif d == 1:
-            size *= 1.10
+        if center is not None:
+            if nid == center:
+                size *= 1.25
+            elif d == 1:
+                size *= 1.10
 
-        nodes_payload.append((nid, label_show, label_full, ntype, float(size), font_rgba, int(font_size), focus_or_neighbor))
+        nodes_payload.append(
+            (nid, label_show, label_full, ntype, float(size), font_rgba, int(font_size), bool(focus_or_neighbor))
+        )
 
     edges_payload: List[Tuple] = []
-    for u, v, k, d in G_display.edges(keys=True, data=True):
+    for u, v, _k, d in G_display.edges(keys=True, data=True):
         rel = d.get("relation", "related_to")
         if relation_filter and rel not in relation_filter:
             continue
@@ -334,19 +343,17 @@ def pyvis_html_from_payload(
     height_px: int,
     physics: bool,
     show_edge_labels: bool,
-    center: str,
+    center: Optional[str],
     spring_length: int,
     avoid_overlap: float,
 ) -> str:
     net = Network(height=f"{height_px}px", width="100%", directed=True, bgcolor="#FFFFFF", font_color="#1f1f1f")
 
-    # Nodes
     for nid, label_show, label_full, ntype, size, font_rgba, font_size, focus_or_neighbor in nodes_payload:
         color = TYPE_COLOR.get(ntype, TYPE_COLOR["Unknown"])
 
-        # Title contains full label + id + type (hover is always full)
         title = f"<b>{label_full}</b><br>id: {nid}<br>type: {ntype}"
-        if nid == center:
+        if center is not None and nid == center:
             title = f"<b>{label_full}</b> (CENTER)<br>id: {nid}<br>type: {ntype}"
 
         net.add_node(
@@ -355,11 +362,10 @@ def pyvis_html_from_payload(
             title=title,
             color=color,
             size=size,
-            borderWidth=(5 if nid == center else (3 if focus_or_neighbor else 1)),
+            borderWidth=(5 if (center is not None and nid == center) else (3 if focus_or_neighbor else 1)),
             font={"color": font_rgba, "size": font_size},
         )
 
-    # Edges
     for u, v, rel, papers_n, ev0 in edges_payload:
         tooltip_lines = [f"{u} —({rel})→ {v}"]
         if papers_n:
@@ -374,7 +380,6 @@ def pyvis_html_from_payload(
         else:
             net.add_edge(u, v, title=title, arrows="to")
 
-    # Options: spacing + overlap control
     options = f"""
     var options = {{
       "interaction": {{
@@ -433,7 +438,7 @@ def render_cached(
     height_px: int,
     physics: bool,
     show_edge_labels: bool,
-    center: str,
+    center: Optional[str],
     spring_length: int,
     avoid_overlap: float,
 ) -> str:
@@ -454,19 +459,63 @@ def render_cached(
 # -----------------------------
 st.title("🧠 Knowledge Graph Viewer")
 
-# -------- Sidebar (re-ordered per requirement) --------
+main_col, right_col = st.columns([3.2, 1.3], gap="large")
+
+# -------- Sidebar controls (uploads moved to right panel) --------
 with st.sidebar:
     st.header("Graph Source")
     mode = st.radio("Choose graph mode", ["Merged global graph", "Per-paper subgraph"], index=0)
     st.caption("If you ran build_kg.py, put outputs under ./kg_out/")
 
-    merged_path = os.path.join("kg_out", "kg_merged.json")
-    bypaper_path = os.path.join("kg_out", "kg_by_paper.json")
+    st.divider()
+    st.header("View")
+    full_graph_view = st.toggle(
+        "Show full graph (ignore center / hops)",
+        value=False,
+        help="If enabled, the entire selected graph is rendered (still subject to performance limits).",
+    )
 
-    uploaded_merged = st.file_uploader("Upload kg_merged.json (optional)", type=["json"])
-    uploaded_bypaper = st.file_uploader("Upload kg_by_paper.json (optional)", type=["json"])
+# -------- Right panel: uploads ABOVE Expected graph JSON format --------
+with right_col:
+    st.subheader("Upload")
+    st.caption("Optional: upload JSON outputs (otherwise reads from ./kg_out/)")
+    uploaded_merged = st.file_uploader("Upload kg_merged.json", type=["json"], key="upload_merged")
+    uploaded_bypaper = st.file_uploader("Upload kg_by_paper.json", type=["json"], key="upload_bypaper")
 
-# Load graphs first (so we can build sidebar type sections)
+    st.divider()
+    with st.expander("Expected graph JSON format", expanded=False):
+        st.code(
+            json.dumps(
+                {
+                    "nodes": [
+                        {"id": "A", "type": "Material", "label": "Lithium metal"},
+                        {"id": "B", "type": "Mechanism", "label": "Dendrite growth"},
+                    ],
+                    "edges": [
+                        {
+                            "source": "A",
+                            "target": "B",
+                            "relation": "PROMOTES",
+                            "papers": ["Paper_xxx", "Paper_yyy"],
+                            "evidence": ["some sentence..."],
+                            "certainty": ["explicit"],
+                            "confidence": ["0.8"],
+                        }
+                    ],
+                },
+                ensure_ascii=False,
+                indent=2,
+            ),
+            language="json",
+        )
+
+
+# -----------------------------
+# Load graphs
+# -----------------------------
+merged_path = os.path.join("kg_out", "kg_merged.json")
+bypaper_path = os.path.join("kg_out", "kg_by_paper.json")
+
 try:
     if uploaded_merged is not None:
         merged_graph = json.load(uploaded_merged)
@@ -477,23 +526,28 @@ try:
         bypaper_graphs = json.load(uploaded_bypaper)
     else:
         bypaper_graphs = load_json_file(bypaper_path) if os.path.exists(bypaper_path) else None
-
 except Exception as e:
     st.error(f"Failed to load graphs: {e}")
     st.stop()
 
+
+# -----------------------------
 # Select graph
+# -----------------------------
 if mode == "Merged global graph":
     if merged_graph is None:
-        st.info("No merged graph found. Upload kg_merged.json or place it under ./kg_out/")
+        with main_col:
+            st.info("No merged graph found. Upload kg_merged.json or place it under ./kg_out/")
         st.stop()
+
     nodes, edges = parse_graph(merged_graph)
     G_full = build_nx_graph(nodes, edges)
     graph_label = "Merged graph"
     nodes_for_index = nodes
 else:
     if bypaper_graphs is None:
-        st.info("No per-paper graph found. Upload kg_by_paper.json or place it under ./kg_out/")
+        with main_col:
+            st.info("No per-paper graph found. Upload kg_by_paper.json or place it under ./kg_out/")
         st.stop()
 
     with st.sidebar:
@@ -505,21 +559,26 @@ else:
     graph_label = f"Subgraph: {paper_id}"
     nodes_for_index = nodes
 
-# Build node type index
+
+# -----------------------------
+# Sidebar controls that depend on loaded graph
+# -----------------------------
 by_type = build_type_index(nodes_for_index)
 
-# ---- Sidebar: Main nodes (by type) BEFORE performance ----
 with st.sidebar:
-    center = pick_center_from_sections(by_type=by_type, default_type="Phenomenon")
+    center: Optional[str] = None
+    if not full_graph_view:
+        center = pick_center_from_sections(by_type=by_type, default_type="Phenomenon")
 
-    hops = st.slider("Path length (hops)", 1, 6, 2)
+    hops = st.slider("Path length (hops)", 1, 6, 2, disabled=full_graph_view)
+
     all_relations = sorted({d.get("relation", "related_to") for _, _, _, d in G_full.edges(keys=True, data=True)})
     rel_selected = st.multiselect("Filter relations", options=all_relations, default=all_relations)
     relation_filter = set(rel_selected) if rel_selected else None
 
     st.divider()
     st.header("Performance")
-    auto_limit = st.toggle("Auto-limit subgraph size", value=True)
+    auto_limit = st.toggle("Auto-limit graph size", value=True)
     max_nodes = st.slider("Max nodes to render", 100, 800, DEFAULT_MAX_NODES, 50)
     max_edges = st.slider("Max edges to render", 200, 3000, DEFAULT_MAX_EDGES, 100)
 
@@ -529,74 +588,98 @@ with st.sidebar:
     spring_length = st.slider("Spacing (spring length)", 140, 520, 300, 20)
     avoid_overlap = st.slider("Avoid overlap", 0.0, 2.0, 1.2, 0.1)
     smart_anti_overlap = st.toggle("Prevent label overlap (smart)", value=True)
-
     show_edge_labels = st.toggle("Show edge labels", value=False)
 
+    st.divider()
+    st.header("Node size")
+    node_size_multiplier = st.slider(
+        "Node size multiplier",
+        0.5,
+        2.5,
+        1.0,
+        0.1,
+        help="Scale all node sizes. Base sizing is still degree-based.",
+    )
 
-    # Keep full names, but to prevent overlap we can hide distant labels entirely
     st.caption("To prevent text overlap, the app can hide distant labels (hover still shows full names).")
     faint_alpha = st.slider("Distant label opacity", 0.0, 0.5, 0.12, 0.02)
 
     st.divider()
-    st.header("View")
+    st.header("Canvas")
     height_px = st.slider("Graph height (px)", 450, 1100, 820, 50)
 
 
-# Stats
-with st.expander("Graph stats (full selected graph)", expanded=False):
-    st.write(f"**{graph_label}**")
-    st.write(f"- Nodes: {G_full.number_of_nodes()}")
-    st.write(f"- Edges: {G_full.number_of_edges()}")
-    st.write(f"- Relation types: {len(all_relations)}")
+# -----------------------------
+# Graph stats (NOT collapsed)
+# -----------------------------
+with main_col:
+    s1, s2, s3, s4 = st.columns(4)
+    s1.metric("Graph", graph_label)
+    s2.metric("Nodes (full)", G_full.number_of_nodes())
+    s3.metric("Edges (full)", G_full.number_of_edges())
+    s4.metric("Relation types", len(all_relations))
 
-# Must have a center chosen
-if not center:
-    st.info("Select a node from the left sections to render its neighborhood.")
-    st.stop()
 
-# Build neighborhood subgraph
-G_display = ego_subgraph(G_full, center, hops)
+# -----------------------------
+# Build display graph
+# -----------------------------
+if full_graph_view:
+    G_display = G_full
+else:
+    if not center:
+        with main_col:
+            st.info("Select a node from the left sections to render its neighborhood (or enable full graph view).")
+        st.stop()
+    G_display = ego_subgraph(G_full, center, hops)
 
-# Auto-limit for performance
 before_n, before_e = G_display.number_of_nodes(), G_display.number_of_edges()
 if auto_limit:
-    G_display = limit_graph_size(G_display, center, max_nodes=max_nodes, max_edges=max_edges)
+    G_display = limit_graph_size(G_display, center=center, max_nodes=max_nodes, max_edges=max_edges)
 after_n, after_e = G_display.number_of_nodes(), G_display.number_of_edges()
 
-# Decide label hiding policy to avoid overlap (NO ellipsis, but we may hide distant labels)
+# Decide label hiding policy to avoid overlap
 hide_distant_labels = False
-if smart_anti_overlap:
-    if after_n >= 220:
-        hide_distant_labels = True
+if smart_anti_overlap and after_n >= 220:
+    hide_distant_labels = True
 
+
+# -----------------------------
 # Metrics row
-m1, m2, m3, m4 = st.columns(4)
-m1.metric("Rendered nodes", after_n)
-m2.metric("Rendered edges", after_e)
-m3.metric("Center node", G_full.nodes[center].get("label", center))
-m4.metric("Hops", hops)
-
-if auto_limit and (before_n != after_n or before_e != after_e):
-    st.warning(
-        f"Subgraph was auto-limited for performance: "
-        f"{before_n}→{after_n} nodes, {before_e}→{after_e} edges. "
-        f"Increase limits in the sidebar if needed."
+# -----------------------------
+with main_col:
+    m1, m2, m3, m4 = st.columns(4)
+    m1.metric("Rendered nodes", after_n)
+    m2.metric("Rendered edges", after_e)
+    m3.metric(
+        "Center node",
+        G_full.nodes[center].get("label", center) if (center is not None and center in G_full) else "(none)",
     )
+    m4.metric("Hops", hops if not full_graph_view else "(full)")
 
-if hide_distant_labels:
-    st.info("Smart mode: only center + neighbors labels are shown to prevent overlap (others are hover-only).")
+    if auto_limit and (before_n != after_n or before_e != after_e):
+        st.warning(
+            f"Graph was auto-limited for performance: {before_n}→{after_n} nodes, {before_e}→{after_e} edges. "
+            f"Increase limits in the sidebar if needed."
+        )
 
-st.divider()
+    if hide_distant_labels:
+        st.info("Smart mode: only center + neighbors labels are shown to prevent overlap (others are hover-only).")
 
-# Build payload (FULL labels, no ellipsis)
+    st.divider()
+
+
+# -----------------------------
+# Build payload + render
+# -----------------------------
 nodes_payload, edges_payload = graph_to_payload(
     G_display=G_display,
     G_full=G_full,
-    center=center,
+    center=center if not full_graph_view else center,
     hops=hops,
     relation_filter=relation_filter,
     faint_alpha=faint_alpha,
     hide_distant_labels=hide_distant_labels,
+    node_size_multiplier=node_size_multiplier,
 )
 
 html = render_cached(
@@ -610,30 +693,5 @@ html = render_cached(
     avoid_overlap=avoid_overlap,
 )
 
-st.components.v1.html(html, height=height_px + 40, scrolling=True)
-
-with st.expander("Expected graph JSON format"):
-    st.code(
-        json.dumps(
-            {
-                "nodes": [
-                    {"id": "A", "type": "Material", "label": "Lithium metal"},
-                    {"id": "B", "type": "Mechanism", "label": "Dendrite growth"},
-                ],
-                "edges": [
-                    {
-                        "source": "A",
-                        "target": "B",
-                        "relation": "PROMOTES",
-                        "papers": ["Paper_xxx", "Paper_yyy"],
-                        "evidence": ["some sentence..."],
-                        "certainty": ["explicit"],
-                        "confidence": ["0.8"],
-                    }
-                ],
-            },
-            ensure_ascii=False,
-            indent=2,
-        ),
-        language="json",
-    )
+with main_col:
+    st.components.v1.html(html, height=height_px + 40, scrolling=True)
